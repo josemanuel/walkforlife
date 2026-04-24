@@ -243,6 +243,40 @@ body::before {
       </div>
     </div>
 
+    <!-- COMORBILIDADES -->
+    <div class="sm:col-span-2 lg:col-span-3 mt-2">
+      <label class="form-label">🏥 Condiciones de salud (opcional)</label>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-1">
+        <label class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-amber-100 transition-colors">
+          <input type="checkbox" id="cb-diabetes" value="diabetes" onchange="actualizarComorbilidades()" class="w-4 h-4 accent-amber-600">
+          <span class="text-sm font-medium text-amber-800">🩸 Diabetes</span>
+        </label>
+        <label class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-amber-100 transition-colors">
+          <input type="checkbox" id="cb-dislipemia" value="dislipemia" onchange="actualizarComorbilidades()" class="w-4 h-4 accent-amber-600">
+          <span class="text-sm font-medium text-amber-800">💊 Dislipemia</span>
+        </label>
+        <label class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-amber-100 transition-colors">
+          <input type="checkbox" id="cb-hipertension" value="hipertension" onchange="actualizarComorbilidades()" class="w-4 h-4 accent-amber-600">
+          <span class="text-sm font-medium text-amber-800">❤️ Hipertensión</span>
+        </label>
+        <label class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-amber-100 transition-colors">
+          <input type="checkbox" id="cb-hiperuricemia" value="hiperuricemia" onchange="actualizarComorbilidades()" class="w-4 h-4 accent-amber-600">
+          <span class="text-sm font-medium text-amber-800">🔬 Hiperuricemia</span>
+        </label>
+      </div>
+      <!-- Panel de recomendaciones dinámicas -->
+      <div id="comorbilidadesPanel" class="hidden mt-4 space-y-3">
+        <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+          <div class="flex items-start gap-2 mb-3">
+            <span class="text-lg">⚠️</span>
+            <p class="text-sm font-bold text-amber-800">Estas recomendaciones son orientativas. Deben ser confirmadas con su Médico de Familia.</p>
+          </div>
+          <div id="comorbilidadesRecs" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
     <button class="btn-primary w-full mt-7 flex items-center justify-center gap-3" onclick="generarPlan()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
       Generar mi plan personalizado
@@ -295,10 +329,56 @@ body::before {
     </div>
 
     <div id="tab-seguimiento" class="tab-content hidden fade-in">
-      <div class="card p-6 md:p-8 mb-6">
+      <div class="card p-6 md:p-8 mb-4">
         <div class="section-header"><div class="section-icon">📈</div><h2 class="font-display text-2xl text-forest-900">Seguimiento y Proyección</h2></div>
         <div id="seguimientoContent"></div>
-        <div class="mt-8"><canvas id="pesoChart" style="max-height:320px"></canvas></div>
+        <!-- REGISTRO DE PESO -->
+        <div class="mt-6 bg-green-50 border border-green-200 rounded-xl p-5">
+          <h3 class="font-semibold text-forest-800 mb-3 flex items-center gap-2"><span>➕</span> Registrar peso actual</h3>
+          <div class="flex flex-wrap gap-3 items-end">
+            <div>
+              <label class="form-label text-xs">Fecha</label>
+              <input type="date" id="registroFecha" class="form-input" style="padding:0.5rem 0.75rem;font-size:0.875rem;">
+            </div>
+            <div>
+              <label class="form-label text-xs">Peso (kg)</label>
+              <input type="number" id="registroPeso" class="form-input" placeholder="ej. 82.5" step="0.1" min="30" max="300" style="padding:0.5rem 0.75rem;font-size:0.875rem;width:130px;">
+            </div>
+            <button onclick="agregarRegistro()" class="btn-primary flex items-center gap-2" style="font-size:0.875rem;padding:0.625rem 1.25rem;">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Añadir
+            </button>
+          </div>
+        </div>
+        <!-- HISTORIAL -->
+        <div id="historialDiv" class="hidden mt-5">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold text-forest-800 flex items-center gap-2"><span>📋</span> Historial de pesajes</h3>
+            <button onclick="limpiarHistorial()" class="text-xs text-red-500 hover:text-red-700 underline">Borrar historial</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="historialTabla">
+              <thead><tr><th>Fecha</th><th>Peso (kg)</th><th>Δ vs anterior</th><th>Δ vs inicio</th><th></th></tr></thead>
+              <tbody id="historialBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- GRÁFICA -->
+        <div class="mt-8"><canvas id="pesoChart" style="max-height:360px"></canvas></div>
+        <!-- BOTÓN RECALCULAR + AVISO DESVIACIÓN -->
+        <div id="desviacionAviso" class="hidden mt-4 bg-orange-50 border border-orange-300 rounded-xl p-4 flex items-start gap-3">
+          <span class="text-xl">📉</span>
+          <div><p id="desviacionTexto" class="text-sm text-orange-700 font-medium"></p></div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-3 items-center">
+          <button id="btnRecalcular" onclick="recalcularPlan()" class="btn-secondary flex items-center gap-2 hidden">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.15"/></svg>
+            Recalcular plan desde hoy
+          </button>
+          <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-2">
+            <span>💾</span> Recuerde guardar los datos actualizados para poder continuar el seguimiento en futuras sesiones.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -308,6 +388,15 @@ body::before {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Descargar plan en PDF
       </button>
+      <button class="btn-secondary flex items-center gap-2" onclick="exportarJSON()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Guardar datos (JSON)
+      </button>
+      <label class="btn-secondary flex items-center gap-2 cursor-pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Cargar datos (JSON)
+        <input type="file" accept=".json" onchange="importarJSON(event)" class="hidden">
+      </label>
       <button class="btn-secondary flex items-center gap-2" onclick="nuevoPlan()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.15"/></svg>
         Generar nuevo plan
@@ -402,6 +491,9 @@ function generarPlan() {
   const meses = parseInt(document.getElementById('meses').value);
   const modoGanancia = document.getElementById('modoGanancia').checked;
   const tipoPlan = modoGanancia ? 'ganancia' : 'perdida';
+  // Capturar comorbilidades seleccionadas
+  const comorbilidades = ['diabetes','dislipemia','hipertension','hiperuricemia']
+    .filter(c => document.getElementById('cb-'+c) && document.getElementById('cb-'+c).checked);
 
   // Validación con rangos razonables
   let ok = true;
@@ -476,9 +568,10 @@ function generarPlan() {
   const calObjetivo = Math.max(1200, tdee - deficit);
   deficit = tdee - calObjetivo;
 
-  planData = { nombre, altura, pesoActual, pesoObjetivo, edad, sexo, meses, tipoPlan,
+  planData = { nombre, altura, pesoActual, pesoObjetivo, edad, sexo, meses, tipoPlan, comorbilidades,
                perdidaTotal, perdidaSemanal: Math.min(perdidaSemanal,1), semanas,
-               imcActual, imcObjetivo, tmb, tdee, deficit, calObjetivo };
+               imcActual, imcObjetivo, tmb, tdee, deficit, calObjetivo,
+               fechaInicio: new Date().toISOString().split('T')[0] };
 
   renderEvaluacion();
   renderEjercicio();
@@ -707,23 +800,15 @@ function renderSeguimiento() {
       <div class="bg-purple-50 border border-purple-200 rounded-xl p-4"><div class="text-2xl mb-2">📊</div><h4 class="font-semibold text-purple-700 mb-1">Pesarse</h4><p class="text-sm text-purple-600">Pésate <strong>1 vez/semana</strong>, siempre igual (mañana, en ayunas). El peso fluctúa ±2 kg a diario.</p></div>
     </div>
     <h3 class="font-display text-xl text-forest-800 mb-2">📈 Proyección de peso esperada</h3>
-    <p class="text-sm text-gray-500 mb-4">Estimación con déficit sostenido de ${d.deficit} kcal/día (~${perdSem.toFixed(2)} kg/semana). Pueden existir variaciones individuales.</p>`;
+    <p class="text-sm text-gray-500 mb-4">La línea verde muestra la proyección original. La línea naranja muestra tu evolución real registrada.</p>`;
 
-  setTimeout(() => {
-    const labels = ['Inicio'];
-    const datos = [d.pesoActual];
-    for (let i = 1; i <= d.meses; i++) {
-      labels.push(`Mes ${i}`);
-      datos.push(parseFloat(Math.max(d.pesoActual-(perdSem*4.33*i), d.pesoObjetivo).toFixed(1)));
-    }
-    const ctx = document.getElementById('pesoChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-      type:'line',
-      data:{ labels, datasets:[{ label:'Peso esperado (kg)', data:datos, borderColor:'#166534', backgroundColor:'rgba(22,101,52,0.08)', pointBackgroundColor:'#166534', pointRadius:6, pointHoverRadius:8, fill:true, tension:0.4, borderWidth:3 }] },
-      options:{ responsive:true, plugins:{ legend:{display:true,labels:{color:'#166534',font:{family:'DM Sans',weight:'600'}}}, tooltip:{callbacks:{label:c=>` ${c.parsed.y} kg`}} }, scales:{ y:{title:{display:true,text:'Peso (kg)',color:'#4b7a51'},grid:{color:'rgba(22,101,52,0.08)'},ticks:{color:'#4b7a51'}}, x:{grid:{color:'rgba(22,101,52,0.05)'},ticks:{color:'#4b7a51'}} } }
-    });
-  },200);
+  // Set today as default date for registro
+  const hoy = new Date().toISOString().split('T')[0];
+  const fechaInput = document.getElementById('registroFecha');
+  if (fechaInput && !fechaInput.value) fechaInput.value = hoy;
+
+  actualizarGrafica();
+  actualizarHistorialUI();
 }
 
 // ============================================================
@@ -757,6 +842,15 @@ function nuevoPlan(){
   document.getElementById('imcWidget').classList.add('hidden');
   document.getElementById('pesoObjetivoInfo').classList.add('hidden');
   document.getElementById('suggPesoObj').classList.add('hidden');
+  // Reset comorbilidades
+  ['cb-diabetes','cb-dislipemia','cb-hipertension','cb-hiperuricemia'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.checked = false;
+  });
+  document.getElementById('comorbilidadesPanel').classList.add('hidden');
+  // Reset historial display
+  historialRegistros = [];
+  document.getElementById('historialDiv').classList.add('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -842,7 +936,8 @@ function descargarPDF() {
   doc.setFillColor(...V); doc.rect(0,0,W,55,'F');
   doc.setTextColor(255,255,255);
   doc.setFontSize(28); doc.setFont('helvetica','bold'); doc.text('WalkForLife', M, 25);
-  doc.setFontSize(12); doc.setFont('helvetica','normal'); doc.text('Plan Personalizado de Pérdida de Peso', M, 35);
+  doc.setFontSize(12); doc.setFont('helvetica','normal');
+  doc.text(d.tipoPlan === 'ganancia' ? 'Plan de Ganancia Muscular Saludable' : 'Plan Personalizado de Pérdida de Peso', M, 35);
   doc.setFontSize(9);
   if (d.nombre) doc.text('Elaborado para: '+d.nombre, M, 43);
   doc.text('Fecha: '+fecha, M, 50);
@@ -859,7 +954,54 @@ function descargarPDF() {
   kv('Sexo', d.sexo==='hombre'?'Hombre':'Mujer');
   kv('Plazo', d.meses+' mes'+(d.meses>1?'es':''));
   kv('Tipo de plan', d.tipoPlan === 'ganancia' ? 'Ganancia muscular saludable' : 'Pérdida de peso');
+  if (d.recalculado) kv('Nota', 'Plan recalculado desde '+d.fechaInicio);
   y += 4;
+
+  // Comorbilidades
+  if (d.comorbilidades && d.comorbilidades.length > 0) {
+    checkY(10);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...V);
+    doc.text('Condiciones de salud declaradas:', M, y); y += 6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...N);
+    const labels = { diabetes:'Diabetes', dislipemia:'Dislipemia', hipertension:'Hipertensión', hiperuricemia:'Hiperuricemia' };
+    doc.text(d.comorbilidades.map(c=>labels[c]||c).join(' · '), M+4, y); y += 8;
+
+    // Recomendaciones por comorbilidad
+    sectionTitle('1b. Recomendaciones Dietéticas por Condición de Salud');
+    // Warning box
+    checkY(14);
+    doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, 10, 2, 2, 'F');
+    doc.setTextColor(161,98,7); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.text('⚠ Estas recomendaciones son orientativas. Deben ser confirmadas con su Médico de Familia.', M+4, y+7);
+    doc.setTextColor(...N); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    y += 14;
+
+    const colorMap2 = {
+      diabetes:    {bg:[255,241,242], tc:[185,28,28]},
+      dislipemia:  {bg:[239,246,255], tc:[29,78,216]},
+      hipertension:{bg:[245,243,255], tc:[109,40,217]},
+      hiperuricemia:{bg:[255,251,235],tc:[161,98,7]}
+    };
+    const labelsRec = { diabetes:'Diabetes', dislipemia:'Dislipemia', hipertension:'Hipertensión', hiperuricemia:'Hiperuricemia/Gota' };
+    d.comorbilidades.forEach(c => {
+      const recs = RECS_COMORBILIDADES[c];
+      if (!recs) return;
+      const cm = colorMap2[c] || {bg:[240,253,244],tc:[22,101,52]};
+      checkY(14 + recs.recomendaciones.length * 6);
+      doc.setFillColor(...cm.bg); doc.roundedRect(M, y, CW, 8, 2, 2, 'F');
+      doc.setTextColor(...cm.tc); doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+      doc.text(recs.titulo, M+4, y+6); y += 11;
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...N);
+      recs.recomendaciones.forEach(rec => {
+        const lines = doc.splitTextToSize('• '+rec, CW-6);
+        checkY(lines.length * 5 + 2);
+        lines.forEach(l => { doc.text(l, M+3, y); y += 5; });
+      });
+      y += 4;
+    });
+  }
+
+  y += 2;
 
   // ========== 2. EVALUACIÓN ==========
   sectionTitle('2. Evaluación Nutricional');
@@ -1041,27 +1183,78 @@ function descargarPDF() {
 
   // ========== 5. SEGUIMIENTO ==========
   sectionTitle('5. Seguimiento y Proyección');
-  subTitle('Proyección de peso mes a mes');
+  subTitle('Proyección de peso mes a mes (plan original)');
   const perdSem = Math.min(d.perdidaSemanal,1);
-  const projW = [40,40,40,40];
-  tableHeader(['Momento','Peso esperado (kg)','Pérdida acum. (kg)','IMC estimado'], projW);
+  const projW = [35,38,38,38,11];
+  tableHeader(['Momento','Peso proyectado','Pérdida acum.','IMC estimado',''], projW);
   let pw = d.pesoActual;
-  tableRow(['Inicio', pw.toFixed(1)+' kg','—', calcIMC(pw,d.altura/100).toFixed(1)], projW, true);
+  tableRow(['Inicio', pw.toFixed(1)+' kg', '—', calcIMC(pw,d.altura/100).toFixed(1), ''], projW, true);
   for (let i=1; i<=d.meses; i++) {
     pw = Math.max(d.pesoActual-(perdSem*4.33*i), d.pesoObjetivo);
-    const perdAcum = (d.pesoActual-pw).toFixed(1);
-    tableRow(['Mes '+i, pw.toFixed(1)+' kg', perdAcum+' kg', calcIMC(pw,d.altura/100).toFixed(1)], projW, i%2===0);
+    tableRow(['Mes '+i, pw.toFixed(1)+' kg', (d.pesoActual-pw).toFixed(1)+' kg', calcIMC(pw,d.altura/100).toFixed(1), ''], projW, i%2===0);
   }
   y += 6;
 
+  // Historial real si existe
+  if (historialRegistros.length > 0) {
+    checkY(14);
+    subTitle('Historial de pesajes reales');
+    const hW = [40,35,35,35,15];
+    tableHeader(['Fecha','Peso (kg)','Δ vs anterior','Δ vs inicio',''], hW);
+    const pesoInicio = d.pesoActual;
+    historialRegistros.forEach((r, i) => {
+      const prev = i > 0 ? historialRegistros[i-1].peso : pesoInicio;
+      const delta = (r.peso - prev).toFixed(1);
+      const deltaI = (r.peso - pesoInicio).toFixed(1);
+      tableRow([
+        r.fecha,
+        r.peso+' kg',
+        (parseFloat(delta) > 0 ? '+' : '')+delta+' kg',
+        (parseFloat(deltaI) > 0 ? '+' : '')+deltaI+' kg',
+        ''
+      ], hW, i%2===0);
+    });
+    y += 6;
+  }
+
+  // Captura de la gráfica dual desde el canvas
+  const chartCanvas = document.getElementById('pesoChart');
+  if (chartCanvas) {
+    try {
+      const imgData = chartCanvas.toDataURL('image/png');
+      checkY(75);
+      const chartW = CW;
+      const chartH = 65;
+      // Marco visual
+      doc.setFillColor(248,250,247); doc.roundedRect(M, y, chartW, chartH+8, 3, 3, 'F');
+      doc.setDrawColor(...V); doc.setLineWidth(0.3);
+      doc.roundedRect(M, y, chartW, chartH+8, 3, 3, 'S');
+      doc.addImage(imgData, 'PNG', M+2, y+4, chartW-4, chartH);
+      // Leyenda
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...V);
+      doc.setFillColor(...V); doc.rect(M+4, y+chartH+5, 12, 1.5, 'F');
+      doc.text('Proyección', M+18, y+chartH+6.5);
+      doc.setFillColor(234,88,12); doc.rect(M+60, y+chartH+5, 12, 1.5, 'F');
+      doc.setTextColor(180,60,10); doc.text('Evolución real', M+74, y+chartH+6.5);
+      doc.setLineWidth(0.2);
+      y += chartH + 14;
+    } catch(e) { /* chart no disponible */ }
+  }
+
+  checkY(10);
   subTitle('Consejos clave de seguimiento');
   bullet('Hidratación: bebe 1.5–2.5 litros de agua al día. Un vaso antes de cada comida reduce el apetito.');
   bullet('Sueño: dormir 7–9 horas regula ghrelina y leptina (hormonas del hambre).');
   bullet('Pesaje: pésate 1 vez/semana en las mismas condiciones (mañana, en ayunas). El peso fluctúa ±2 kg a diario.');
-  bullet('Registro: usa MyFitnessPal o una hoja de papel. Registrar el 80% de los días ya da resultados.');
+  bullet('Registro: añade tu peso en la app para actualizar la curva real y detectar desviaciones.');
   bullet('Constancia: no busques perfección diaria. Una semana difícil no arruina el progreso de meses.');
-  bullet('Ajuste: si llevas 3 semanas sin bajar, revisa porciones o aumenta 10 min de caminata diaria.');
-  y += 6;
+  bullet('Ajuste: si llevas 3 semanas sin bajar, usa "Recalcular plan" para actualizar el plan desde hoy.');
+  // Aviso guardado de datos
+  checkY(10);
+  doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, 9, 2, 2, 'F');
+  doc.setTextColor(161,98,7); doc.setFont('helvetica','italic'); doc.setFontSize(8);
+  doc.text('💾 Recuerde guardar los datos actualizados (botón "Guardar datos JSON") para continuar el seguimiento en futuras sesiones.', M+3, y+6, {maxWidth: CW-6});
+  y += 13;
 
   // ========== AVISO LEGAL ==========
   checkY(22);
@@ -1253,6 +1446,385 @@ function syncSlider() {
 // ============================================================
 const _generarPlanOrig = generarPlan;
 // Redefine generarPlan to capture tipoPlan (done inline below)
+
+// ============================================================
+// MÓDULO: COMORBILIDADES — recomendaciones dietéticas clínicas
+// (síntesis de directrices generales; no texto literal de fuentes)
+// ============================================================
+const RECS_COMORBILIDADES = {
+  diabetes: {
+    titulo: '🩸 Diabetes',
+    color: 'bg-red-50 border-red-200',
+    tc: 'text-red-800',
+    recomendaciones: [
+      'Distribuir los carbohidratos en 5–6 ingestas regulares para evitar picos glucémicos.',
+      'Priorizar carbohidratos de bajo índice glucémico: legumbres, cereales integrales, verduras.',
+      'Reducir azúcares simples (azúcar, miel, refrescos, zumos) y productos ultraprocesados.',
+      'Incluir fibra soluble en cada comida (avena, manzana, legumbres): enlentece la absorción de glucosa.',
+      'Las proteínas magras y grasas saludables (AOVE, aguacate) tienen mínimo impacto glucémico.',
+      'Evitar el alcohol en ayunas: riesgo de hipoglucemia.',
+      'Controlar el tamaño de las raciones con el "método del plato": ½ verduras, ¼ proteína, ¼ carbohidratos.'
+    ]
+  },
+  dislipemia: {
+    titulo: '💊 Dislipemia',
+    color: 'bg-blue-50 border-blue-200',
+    tc: 'text-blue-800',
+    recomendaciones: [
+      'Reducir las grasas saturadas (carnes grasas, lácteos enteros, mantequilla, bollería industrial).',
+      'Eliminar las grasas trans presentes en margarinas vegetales parcialmente hidrogenadas y snacks.',
+      'Aumentar el consumo de grasas insaturadas: aceite de oliva virgen extra, aguacate, frutos secos (30 g/día).',
+      'Consumir pescado azul 2–3 veces por semana (salmón, sardinas, caballa) por su aporte de omega-3.',
+      'Incrementar la fibra soluble: avena, psyllium, manzana, zanahoria — reduce la absorción de colesterol.',
+      'Limitar el colesterol dietético: máximo 200 mg/día en hipercolesterolemia severa.',
+      'Moderar el consumo de alcohol: aumenta los triglicéridos.'
+    ]
+  },
+  hipertension: {
+    titulo: '❤️ Hipertensión',
+    color: 'bg-purple-50 border-purple-200',
+    tc: 'text-purple-800',
+    recomendaciones: [
+      'Reducir el sodio a menos de 2.000–2.400 mg/día (≈ 5–6 g de sal). Evitar sal en la mesa.',
+      'Leer etiquetas: embutidos, conservas, quesos curados, salsas y precocinados son fuentes ocultas de sodio.',
+      'Seguir el patrón DASH: abundantes frutas, verduras, lácteos desnatados, cereales integrales.',
+      'Aumentar el potasio mediante frutas (plátano, naranja), verduras (patata, tomate) y legumbres.',
+      'Moderar el alcohol: máximo 1 unidad/día en mujeres, 2 en hombres.',
+      'Reducir la cafeína en casos de hipertensión no controlada.',
+      'Controlar el peso: cada kg perdido reduce la presión sistólica ~1 mmHg.'
+    ]
+  },
+  hiperuricemia: {
+    titulo: '🔬 Hiperuricemia / Gota',
+    color: 'bg-amber-50 border-amber-200',
+    tc: 'text-amber-800',
+    recomendaciones: [
+      'Limitar las purinas: evitar vísceras (hígado, riñones, sesos), mariscos (mejillones, anchoas, sardinas).',
+      'Reducir carnes rojas a 1–2 raciones semanales; preferir aves y pescado blanco.',
+      'Hidratación abundante: 2–3 litros de agua/día para favorecer la excreción renal de ácido úrico.',
+      'Evitar completamente el alcohol, especialmente cerveza y licores de alta graduación.',
+      'Limitar las bebidas azucaradas con fructosa: refrescos, zumos industriales.',
+      'Los lácteos desnatados tienen efecto uricosúrico (favorecen la eliminación de urato).',
+      'Las legumbres y verduras con purinas (espinacas, espárragos) se toleran mejor que las purinas animales.'
+    ]
+  }
+};
+
+/** Actualiza dinámicamente el panel de recomendaciones según checkboxes marcados */
+function actualizarComorbilidades() {
+  const seleccionadas = ['diabetes','dislipemia','hipertension','hiperuricemia']
+    .filter(c => document.getElementById('cb-'+c).checked);
+
+  const panel = document.getElementById('comorbilidadesPanel');
+  const recsDiv = document.getElementById('comorbilidadesRecs');
+
+  if (seleccionadas.length === 0) {
+    panel.classList.add('hidden');
+    return;
+  }
+  panel.classList.remove('hidden');
+
+  recsDiv.innerHTML = seleccionadas.map(c => {
+    const r = RECS_COMORBILIDADES[c];
+    return `<div class="${r.color} border rounded-xl p-3">
+      <h4 class="font-bold ${r.tc} mb-2 text-sm">${r.titulo}</h4>
+      <ul class="space-y-1">${r.recomendaciones.map(rec =>
+        `<li class="text-xs ${r.tc} flex gap-2"><span class="mt-0.5 flex-shrink-0">•</span><span>${rec}</span></li>`
+      ).join('')}</ul>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// MÓDULO: HISTORIAL DE PESAJES
+// ============================================================
+let historialRegistros = []; // [{fecha, peso}]
+
+/** Añade un nuevo registro de peso con fecha */
+function agregarRegistro() {
+  const fecha = document.getElementById('registroFecha').value;
+  const peso  = parseFloat(document.getElementById('registroPeso').value);
+  if (!fecha || !peso || peso < 20 || peso > 400) {
+    alert('⚠️ Introduce una fecha y un peso válidos.');
+    return;
+  }
+  // Evitar duplicados de misma fecha
+  const existeIdx = historialRegistros.findIndex(r => r.fecha === fecha);
+  if (existeIdx >= 0) {
+    if (!confirm(`Ya existe un registro para ${fecha} (${historialRegistros[existeIdx].peso} kg). ¿Deseas reemplazarlo?`)) return;
+    historialRegistros[existeIdx].peso = peso;
+  } else {
+    historialRegistros.push({ fecha, peso });
+    historialRegistros.sort((a,b) => a.fecha.localeCompare(b.fecha));
+  }
+  document.getElementById('registroPeso').value = '';
+  actualizarHistorialUI();
+  actualizarGrafica();
+}
+
+/** Elimina un registro por índice */
+function eliminarRegistro(idx) {
+  historialRegistros.splice(idx, 1);
+  actualizarHistorialUI();
+  actualizarGrafica();
+}
+
+/** Limpia todo el historial */
+function limpiarHistorial() {
+  if (!confirm('¿Borrar todo el historial de pesajes?')) return;
+  historialRegistros = [];
+  actualizarHistorialUI();
+  actualizarGrafica();
+}
+
+/** Renderiza la tabla del historial */
+function actualizarHistorialUI() {
+  const div = document.getElementById('historialDiv');
+  const tbody = document.getElementById('historialBody');
+  if (!tbody) return;
+  if (historialRegistros.length === 0) { div.classList.add('hidden'); return; }
+  div.classList.remove('hidden');
+
+  const pesoInicio = planData.pesoActual || 0;
+  tbody.innerHTML = historialRegistros.map((r, i) => {
+    const prev = i > 0 ? historialRegistros[i-1].peso : pesoInicio;
+    const delta = (r.peso - prev).toFixed(1);
+    const deltaInicio = (r.peso - pesoInicio).toFixed(1);
+    const deltaColor = parseFloat(delta) <= 0 ? 'text-green-600' : 'text-red-500';
+    return `<tr>
+      <td data-label="Fecha">${r.fecha}</td>
+      <td data-label="Peso"><strong>${r.peso} kg</strong></td>
+      <td data-label="Δ anterior" class="${deltaColor}">${parseFloat(delta) > 0 ? '+' : ''}${delta} kg</td>
+      <td data-label="Δ inicio" class="${parseFloat(deltaInicio) <= 0 ? 'text-green-600' : 'text-red-500'}">${parseFloat(deltaInicio) > 0 ? '+' : ''}${deltaInicio} kg</td>
+      <td><button onclick="eliminarRegistro(${i})" class="text-xs text-red-400 hover:text-red-600">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Mostrar botón recalcular y aviso de desviación si hay datos
+  detectarDesviacion();
+}
+
+/** Compara la curva real con la proyectada y avisa si hay desvío */
+function detectarDesviacion() {
+  const btnR = document.getElementById('btnRecalcular');
+  const avisoDiv = document.getElementById('desviacionAviso');
+  const avisoTxt = document.getElementById('desviacionTexto');
+  if (!historialRegistros.length || !planData.pesoActual) {
+    btnR && btnR.classList.add('hidden');
+    avisoDiv && avisoDiv.classList.add('hidden');
+    return;
+  }
+  const ultimo = historialRegistros[historialRegistros.length - 1];
+  const diasTranscurridos = Math.max(1, Math.round((new Date(ultimo.fecha) - new Date(planData.fechaInicio || Date.now())) / (1000*60*60*24)));
+  const semanas = diasTranscurridos / 7;
+  const perdSem = Math.min(planData.perdidaSemanal, 1);
+  const pesoEsperado = Math.max(planData.pesoActual - (perdSem * semanas), planData.pesoObjetivo);
+  const desviacion = (ultimo.peso - pesoEsperado).toFixed(1);
+
+  btnR.classList.remove('hidden');
+  if (Math.abs(parseFloat(desviacion)) >= 1) {
+    avisoDiv.classList.remove('hidden');
+    if (parseFloat(desviacion) > 0) {
+      avisoTxt.textContent = `⚠️ Tu peso actual (${ultimo.peso} kg) está ${desviacion} kg por encima de la proyección (${pesoEsperado.toFixed(1)} kg). Considera recalcular el plan.`;
+    } else {
+      avisoTxt.textContent = `🎉 ¡Vas mejor de lo esperado! Tu peso (${ultimo.peso} kg) está ${Math.abs(desviacion)} kg por debajo de la proyección (${pesoEsperado.toFixed(1)} kg).`;
+    }
+  } else {
+    avisoDiv.classList.add('hidden');
+  }
+}
+
+/** Recalcula el plan desde el último peso registrado manteniendo el objetivo original */
+function recalcularPlan() {
+  if (!historialRegistros.length) return;
+  const ultimo = historialRegistros[historialRegistros.length - 1];
+  const nuevoPesoActual = ultimo.peso;
+  const pesoObj = planData.pesoObjetivo;
+  if (nuevoPesoActual <= pesoObj) {
+    alert('🎉 ¡Ya has alcanzado o superado tu objetivo! No es necesario recalcular.');
+    return;
+  }
+  const perdida = nuevoPesoActual - pesoObj;
+  const mesesNec = Math.ceil(perdida / (0.75 * 4.33));
+  const altM = planData.altura / 100;
+  const nuevoIMC = calcIMC(nuevoPesoActual, altM);
+  const nuevaTMB = calcTMB(nuevoPesoActual, planData.altura, planData.edad, planData.sexo);
+  const nuevoTDEE = calcTDEE(nuevaTMB);
+  const nuevoPerdSem = Math.min(perdida / (mesesNec * 4.33), 1);
+  let nuevoDeficit = nuevoPerdSem > 0.75 ? 750 : (nuevoPerdSem > 0.5 ? 625 : 500);
+  const nuevoCalObjetivo = Math.max(1200, nuevoTDEE - nuevoDeficit);
+  nuevoDeficit = nuevoTDEE - nuevoCalObjetivo;
+
+  // Actualizar planData con nuevo punto de inicio
+  planData = {
+    ...planData,
+    pesoActual: nuevoPesoActual,
+    imcActual: nuevoIMC,
+    tmb: nuevaTMB, tdee: nuevoTDEE,
+    deficit: nuevoDeficit, calObjetivo: nuevoCalObjetivo,
+    perdidaTotal: perdida,
+    perdidaSemanal: nuevoPerdSem,
+    meses: mesesNec,
+    semanas: mesesNec * 4.33,
+    fechaInicio: ultimo.fecha,
+    recalculado: true
+  };
+
+  actualizarGrafica();
+  // Mostrar resumen del recálculo
+  const avisoDiv = document.getElementById('desviacionAviso');
+  const avisoTxt = document.getElementById('desviacionTexto');
+  avisoDiv.classList.remove('hidden');
+  avisoDiv.style.background = '#f0fdf4';
+  avisoDiv.style.borderColor = '#86efac';
+  avisoTxt.innerHTML = `✅ <strong>Plan recalculado.</strong> Desde ${nuevoPesoActual} kg hasta ${pesoObj} kg en ~${mesesNec} meses. Nueva ingesta: ${nuevoCalObjetivo} kcal/día.`;
+  avisoTxt.className = 'text-sm text-green-700 font-medium';
+}
+
+// ============================================================
+// MÓDULO: GRÁFICA DUAL (proyección + real)
+// ============================================================
+function actualizarGrafica() {
+  const d = planData;
+  if (!d.pesoActual) return;
+
+  const perdSem = Math.min(d.perdidaSemanal, 1);
+  const labels = ['Inicio'];
+  const proyeccion = [d.pesoActual];
+
+  for (let i = 1; i <= d.meses; i++) {
+    labels.push(`Mes ${i}`);
+    proyeccion.push(parseFloat(Math.max(d.pesoActual - (perdSem * 4.33 * i), d.pesoObjetivo).toFixed(1)));
+  }
+
+  // Construir serie real a partir del historial
+  let datosReales = null;
+  if (historialRegistros.length > 0) {
+    const fechaBase = new Date(d.fechaInicio || new Date());
+    datosReales = new Array(labels.length).fill(null);
+    datosReales[0] = d.pesoActual; // punto de inicio conocido
+
+    historialRegistros.forEach(r => {
+      const dias = Math.round((new Date(r.fecha) - fechaBase) / (1000*60*60*24));
+      const mesIdx = Math.round(dias / 30);
+      if (mesIdx >= 0 && mesIdx <= d.meses) {
+        datosReales[mesIdx] = r.peso;
+      }
+    });
+  }
+
+  const ctx = document.getElementById('pesoChart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  const datasets = [
+    {
+      label: 'Proyección (kg)',
+      data: proyeccion,
+      borderColor: '#166534',
+      backgroundColor: 'rgba(22,101,52,0.06)',
+      pointBackgroundColor: '#166534',
+      pointRadius: 5, pointHoverRadius: 7,
+      fill: true, tension: 0.4, borderWidth: 2.5,
+      borderDash: []
+    }
+  ];
+
+  if (datosReales) {
+    datasets.push({
+      label: 'Evolución real (kg)',
+      data: datosReales,
+      borderColor: '#ea580c',
+      backgroundColor: 'rgba(234,88,12,0.06)',
+      pointBackgroundColor: '#ea580c',
+      pointRadius: 6, pointHoverRadius: 8,
+      fill: false, tension: 0.3, borderWidth: 2.5,
+      borderDash: [6, 3],
+      spanGaps: true
+    });
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true, labels: { color: '#166534', font: { family: 'DM Sans', weight: '600' }, padding: 16 } },
+        tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y + ' kg' : '—'}` } }
+      },
+      scales: {
+        y: { title: { display: true, text: 'Peso (kg)', color: '#4b7a51' }, grid: { color: 'rgba(22,101,52,0.08)' }, ticks: { color: '#4b7a51' } },
+        x: { grid: { color: 'rgba(22,101,52,0.05)' }, ticks: { color: '#4b7a51' } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// MÓDULO: EXPORTAR / IMPORTAR JSON
+// ============================================================
+
+/** Exporta planData + historial como fichero JSON descargable */
+function exportarJSON() {
+  if (!planData.pesoActual) { alert('⚠️ Genera un plan antes de exportar.'); return; }
+  const datos = {
+    version: '1.0',
+    exportado: new Date().toISOString(),
+    planData: planData,
+    historial: historialRegistros,
+    comorbilidades: planData.comorbilidades || []
+  };
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (planData.nombre ? 'WalkForLife_'+planData.nombre.replace(/\s+/g,'_') : 'WalkForLife_datos') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Importa un JSON y restaura el estado de la aplicación */
+function importarJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const datos = JSON.parse(e.target.result);
+      // Validación básica de estructura
+      if (!datos.planData || !datos.planData.pesoActual || !datos.planData.pesoObjetivo) {
+        throw new Error('Estructura del JSON no válida. Faltan campos obligatorios.');
+      }
+      planData = datos.planData;
+      historialRegistros = Array.isArray(datos.historial) ? datos.historial : [];
+
+      // Restaurar comorbilidades en checkboxes
+      const coms = datos.comorbilidades || planData.comorbilidades || [];
+      ['diabetes','dislipemia','hipertension','hiperuricemia'].forEach(c => {
+        const el = document.getElementById('cb-'+c);
+        if (el) el.checked = coms.includes(c);
+      });
+      if (coms.length) actualizarComorbilidades();
+
+      // Renderizar resultados
+      renderEvaluacion();
+      renderEjercicio();
+      renderDieta();
+      renderSeguimiento();
+      document.getElementById('resultados').classList.remove('hidden');
+      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Ir directo a seguimiento
+      setTimeout(() => {
+        const tabBtn = document.querySelector('#tabs .tab-btn:nth-child(4)');
+        if (tabBtn) tabBtn.click();
+      }, 400);
+    } catch(err) {
+      alert('❌ Error al cargar el archivo: ' + err.message);
+    }
+    event.target.value = ''; // reset input
+  };
+  reader.readAsText(file);
+}
 
 setupPWA();
 </script>
