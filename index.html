@@ -190,6 +190,60 @@ body::before {
         </select>
         <p class="field-error" id="err-sexo">⚠ Selecciona el sexo.</p>
       </div>
+      <!-- % GRASA CORPORAL (opcional) -->
+      <div class="sm:col-span-2 lg:col-span-3">
+        <div class="border border-green-200 rounded-xl overflow-hidden">
+          <button type="button" onclick="toggleGrasaPanel()"
+            class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 transition-colors text-left">
+            <span class="font-semibold text-forest-800 text-sm flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              % Grasa corporal <span class="font-normal text-green-600">(opcional)</span>
+            </span>
+            <span id="grasaToggleIcon" class="text-forest-600 text-xl select-none font-bold">+</span>
+          </button>
+          <div id="grasaPanel" class="hidden px-4 pb-4 pt-3 bg-white">
+            <p class="text-xs text-gray-500 mb-3">El IMC no distingue grasa de musculo. Introduce tu % directamente (bascula de bioimpedancia) o estimalo con los perimetros corporales (formula Navy de la Marina de EE.UU.).</p>
+            <div class="flex gap-2 mb-4">
+              <button type="button" onclick="setGrasaMode('directo')" id="grasaTabDirecto" class="tab-btn active text-xs px-3 py-1">Introducir directamente</button>
+              <button type="button" onclick="setGrasaMode('navy')" id="grasaTabNavy" class="tab-btn text-xs px-3 py-1">Calcular con formula Navy</button>
+            </div>
+            <div id="grasaModoDirecto">
+              <div class="flex items-end gap-3">
+                <div style="width:160px">
+                  <label class="form-label text-xs">% Grasa corporal</label>
+                  <input type="number" id="grasaDirecta" class="form-input" placeholder="ej. 28" min="3" max="60" step="0.1" oninput="calcularGrasa()">
+                </div>
+              </div>
+            </div>
+            <div id="grasaModoNavy" class="hidden">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="form-label text-xs">Perimetro cuello (cm)</label>
+                  <input type="number" id="pCuello" class="form-input" placeholder="ej. 38" min="20" max="70" step="0.5" oninput="calcularGrasa()">
+                </div>
+                <div>
+                  <label class="form-label text-xs">Perimetro cintura (cm)</label>
+                  <input type="number" id="pCintura" class="form-input" placeholder="ej. 90" min="40" max="200" step="0.5" oninput="calcularGrasa()">
+                </div>
+                <div id="pCaderaDiv">
+                  <label class="form-label text-xs">Perimetro cadera (cm) <span class="text-green-600 font-normal">(solo mujer)</span></label>
+                  <input type="number" id="pCadera" class="form-input" placeholder="ej. 100" min="40" max="200" step="0.5" oninput="calcularGrasa()">
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">Mide en la parte mas estrecha (cuello) y la mas ancha (cintura, cadera), sin tensar la cinta.</p>
+            </div>
+            <div id="grasaResultado" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+              <div class="flex flex-wrap items-center gap-4">
+                <div class="text-center"><div id="grasaPorcentaje" class="font-display text-2xl text-forest-800">--</div><div class="text-xs text-green-700">% Grasa</div></div>
+                <div class="text-center"><div id="grasaMasaGrasa" class="font-display text-2xl text-forest-800">--</div><div class="text-xs text-green-700">kg masa grasa</div></div>
+                <div class="text-center"><div id="grasaMasaMagra" class="font-display text-2xl text-forest-800">--</div><div class="text-xs text-green-700">kg masa magra</div></div>
+                <div><span id="grasaClasifBadge" class="badge text-xs">--</span><p id="grasaConsejo" class="text-xs text-gray-500 mt-1 max-w-xs"></p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- MODO GANANCIA (solo visible en normopeso) -->
       <div id="modoGananciaDiv" class="hidden sm:col-span-2 lg:col-span-1">
         <label class="form-label">💪 Objetivo de ganancia</label>
@@ -495,6 +549,12 @@ function generarPlan() {
   const comorbilidades = ['diabetes','dislipemia','hipertension','hiperuricemia']
     .filter(c => document.getElementById('cb-'+c) && document.getElementById('cb-'+c).checked);
 
+  // Capturar % grasa si se ha calculado
+  const grasaPct    = planData.grasaPct    || null;
+  const grasaClasif = planData.grasaClasif || null;
+  const masaGrasa   = planData.masaGrasa   || null;
+  const masaMagra   = planData.masaMagra   || null;
+
   // Validación con rangos razonables
   let ok = true;
   if (!altura || altura < 100 || altura > 250)
@@ -569,6 +629,7 @@ function generarPlan() {
   deficit = tdee - calObjetivo;
 
   planData = { nombre, altura, pesoActual, pesoObjetivo, edad, sexo, meses, tipoPlan, comorbilidades,
+               grasaPct, grasaClasif, masaGrasa, masaMagra,
                perdidaTotal, perdidaSemanal: Math.min(perdidaSemanal,1), semanas,
                imcActual, imcObjetivo, tmb, tdee, deficit, calObjetivo,
                fechaInicio: new Date().toISOString().split('T')[0] };
@@ -611,6 +672,11 @@ function renderEvaluacion() {
       <div class="stat-card"><div class="stat-number">${d.imcObjetivo.toFixed(1)}</div><div class="stat-label">IMC objetivo</div><div class="mt-2"><span class="badge ${imcO.color} text-xs">${imcO.texto}</span></div></div>
       <div class="stat-card"><div class="stat-number">${d.perdidaTotal.toFixed(1)}</div><div class="stat-label">Kg a perder</div></div>
       <div class="stat-card"><div class="stat-number">${perdSem.toFixed(2)}</div><div class="stat-label">Kg/semana est.</div></div>
+      ${d.grasaPct ? `
+      <div class="stat-card"><div class="stat-number">${d.grasaPct.toFixed(1)}%</div><div class="stat-label">% Grasa corporal</div><div class="mt-2"><span class="badge badge-green text-xs">${d.grasaClasif}</span></div></div>
+      <div class="stat-card"><div class="stat-number">${d.masaGrasa}</div><div class="stat-label">kg masa grasa</div></div>
+      <div class="stat-card"><div class="stat-number">${d.masaMagra}</div><div class="stat-label">kg masa magra</div></div>
+      ` : ''}
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div>
@@ -897,7 +963,7 @@ function descargarPDF() {
   const bullet = (text) => {
     checkY(6);
     doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    const lines = doc.splitTextToSize('• '+text, CW-6);
+    const lines = doc.splitTextToSize('- '+text, CW-6);
     lines.forEach(l => { doc.text(l, M+3, y); y += 5.5; });
     doc.setFontSize(9.5);
   };
@@ -946,7 +1012,7 @@ function descargarPDF() {
 
   // ========== 1. DATOS PERSONALES ==========
   sectionTitle('1. Datos Personales');
-  kv('Nombre', d.nombre || '—');
+  kv('Nombre', d.nombre || '-');
   kv('Talla', d.altura+' cm');
   kv('Peso actual', d.pesoActual+' kg');
   kv('Peso objetivo', d.pesoObjetivo+' kg');
@@ -972,7 +1038,7 @@ function descargarPDF() {
     checkY(14);
     doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, 10, 2, 2, 'F');
     doc.setTextColor(161,98,7); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-    doc.text('⚠ Estas recomendaciones son orientativas. Deben ser confirmadas con su Médico de Familia.', M+4, y+7);
+    doc.text('AVISO: Estas recomendaciones son orientativas. Deben ser confirmadas con su Medico de Familia.', M+4, y+7);
     doc.setTextColor(...N); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
     y += 14;
 
@@ -993,7 +1059,7 @@ function descargarPDF() {
       doc.text(recs.titulo, M+4, y+6); y += 11;
       doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...N);
       recs.recomendaciones.forEach(rec => {
-        const lines = doc.splitTextToSize('• '+rec, CW-6);
+        const lines = doc.splitTextToSize('- '+rec, CW-6);
         checkY(lines.length * 5 + 2);
         lines.forEach(l => { doc.text(l, M+3, y); y += 5; });
       });
@@ -1004,38 +1070,43 @@ function descargarPDF() {
   y += 2;
 
   // ========== 2. EVALUACIÓN ==========
-  sectionTitle('2. Evaluación Nutricional');
-  kv('IMC actual', d.imcActual.toFixed(1)+' — '+descIMC(d.imcActual).texto);
-  kv('IMC objetivo', d.imcObjetivo.toFixed(1)+' — '+descIMC(d.imcObjetivo).texto);
-  kv('Pérdida total', d.perdidaTotal.toFixed(1)+' kg');
-  kv('Pérdida semanal', Math.min(d.perdidaSemanal,1).toFixed(2)+' kg/semana');
-  kv('TMB (Mifflin-St Jeor)', Math.round(d.tmb)+' kcal/día');
-  kv('Gasto total TDEE', d.tdee+' kcal/día');
-  kv('Déficit calórico', d.deficit+' kcal/día');
-  kv('Objetivo calórico diario', d.calObjetivo+' kcal/día');
+  sectionTitle('2. Evaluacion Nutricional');
+  kv('IMC actual', d.imcActual.toFixed(1)+' - '+descIMC(d.imcActual).texto);
+  kv('IMC objetivo', d.imcObjetivo.toFixed(1)+' - '+descIMC(d.imcObjetivo).texto);
+  kv('Perdida total', d.perdidaTotal.toFixed(1)+' kg');
+  kv('Perdida semanal', Math.min(d.perdidaSemanal,1).toFixed(2)+' kg/semana');
+  if (d.grasaPct) {
+    kv('% Grasa corporal', d.grasaPct.toFixed(1)+'% - '+d.grasaClasif);
+    kv('Masa grasa', d.masaGrasa+' kg');
+    kv('Masa magra (MLG)', d.masaMagra+' kg');
+  }
+  kv('TMB (Mifflin-St Jeor)', Math.round(d.tmb)+' kcal/dia');
+  kv('Gasto total TDEE', d.tdee+' kcal/dia');
+  kv('Deficit calorico', d.deficit+' kcal/dia');
+  kv('Objetivo calorico diario', d.calObjetivo+' kcal/dia');
   y += 4;
 
   // ========== 3. PROGRAMA EJERCICIO ==========
-  sectionTitle('3. Programa de Ejercicio — Enfoque Caminar');
+  sectionTitle('3. Programa de Ejercicio - Enfoque Caminar');
   subTitle('Plan progresivo 6 semanas (repetible)');
   const ejW = [28,28,28,36,28,22];
   tableHeader(['Semana','Minutos','Pasos','Ritmo','Distancia','Días'], ejW);
-  [['Sem. 1','25–30','6.000','Normal 4 km/h','~1.7 km','5/sem'],
-   ['Sem. 2','30–35','7.500','Normal-rápido 4.5 km/h','~2.2 km','5/sem'],
-   ['Sem. 3','35–40','8.500','Rápido 5 km/h','~3 km','5/sem'],
-   ['Sem. 4','40–45','9.500','Rápido 5 km/h','~3.5 km','6/sem'],
-   ['Sem. 5','45–50','10.000','Muy rápido 5.5 km/h','~4 km','6/sem'],
-   ['Sem. 6','50–60','11.000+','Muy rápido 5.5 km/h','~5 km','6/sem'],
+  [['Sem. 1','25-30','6.000','Normal 4 km/h','~1.7 km','5/sem'],
+   ['Sem. 2','30-35','7.500','Normal-rápido 4.5 km/h','~2.2 km','5/sem'],
+   ['Sem. 3','35-40','8.500','Rápido 5 km/h','~3 km','5/sem'],
+   ['Sem. 4','40-45','9.500','Rápido 5 km/h','~3.5 km','6/sem'],
+   ['Sem. 5','45-50','10.000','Muy rápido 5.5 km/h','~4 km','6/sem'],
+   ['Sem. 6','50-60','11.000+','Muy rápido 5.5 km/h','~5 km','6/sem'],
   ].forEach((r,i) => tableRow(r,ejW,i%2===0));
   y += 6;
 
-  subTitle('Entrenamiento de Fuerza (2–3 sesiones/semana)');
+  subTitle('Entrenamiento de Fuerza (2-3 sesiones/semana)');
   const fuW = [52,20,30,30,38];
   tableHeader(['Ejercicio','Series','Reps','Descanso','Músculos'], fuW);
-  [['Sentadillas','3','12–15','60 s','Piernas, glúteos'],
-   ['Flexiones (rodillas si precisa)','3','8–12','60 s','Pecho, hombros'],
+  [['Sentadillas','3','12-15','60 s','Piernas, glúteos'],
+   ['Flexiones (rodillas si precisa)','3','8-12','60 s','Pecho, hombros'],
    ['Zancadas alternadas','3','10/pierna','60 s','Piernas, glúteos'],
-   ['Plancha abdominal','3','20–40 s','45 s','Core, abdomen'],
+   ['Plancha abdominal','3','20-40 s','45 s','Core, abdomen'],
    ['Hip thrust (en suelo)','3','15','45 s','Glúteos, isquios'],
    ['Superman (dorsal)','3','12','45 s','Espalda baja'],
   ].forEach((r,i) => tableRow(r,fuW,i%2===0));
@@ -1076,9 +1147,9 @@ function descargarPDF() {
   doc.setTextColor(...V); doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
   doc.text('Alternativas para mal tiempo', M, y); y += 7;
   const cards = [
-    {icon:'🪜', titulo:'Escaleras',       color:[219,234,254], tc:[29,78,216],   texto:'15–20 min subiendo/bajando. Equivale a ~30 min de caminata en intensidad.'},
-    {icon:'🏠', titulo:'Marcha en casa',  color:[243,232,255], tc:[109,40,217],  texto:'Camina en el sitio elevando rodillas. Busca "indoor walking" en YouTube.'},
-    {icon:'🛒', titulo:'Recados activos', color:[255,247,237], tc:[194,65,12],   texto:'Suma pasos comprando o en el trabajo. Cada 1.000 pasos extra ≈ 50 kcal.'},
+    {icon:'', titulo:'Escaleras',       color:[219,234,254], tc:[29,78,216],   texto:'15-20 min subiendo/bajando. Equivale a ~30 min de caminata en intensidad.'},
+    {icon:'', titulo:'Marcha en casa',  color:[243,232,255], tc:[109,40,217],  texto:'Camina en el sitio elevando rodillas. Busca "indoor walking" en YouTube.'},
+    {icon:'', titulo:'Recados activos', color:[255,247,237], tc:[194,65,12],   texto:'Suma pasos comprando o en el trabajo. Cada 1.000 pasos extra ~ 50 kcal.'},
   ];
   const cW = (CW - 6) / 3;
   const cH = 28;
@@ -1104,9 +1175,9 @@ function descargarPDF() {
   doc.setDrawColor(134,239,172);
   doc.roundedRect(M, y, CW, 16, 2, 2, 'FD');
   doc.setTextColor(...V); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('🧘 Estiramientos diarios (10 min)', M+4, y+6);
+  doc.text('Estiramientos diarios (10 min)', M+4, y+6);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.2); doc.setTextColor(21,128,61);
-  doc.text('Gemelos · Cuádriceps · Isquiotibiales · Caderas · Espalda baja · Hombros — 30 seg c/u × 2 veces. Especialmente después de cada caminata.', M+4, y+12, {maxWidth: CW-8});
+  doc.text('Gemelos · Cuádriceps · Isquiotibiales · Caderas · Espalda baja · Hombros - 30 seg c/u × 2 veces. Especialmente después de cada caminata.', M+4, y+12, {maxWidth: CW-8});
   doc.setDrawColor(0); doc.setTextColor(...N);
   y += 22;
 
@@ -1143,7 +1214,7 @@ function descargarPDF() {
       menu:[
         ['Desayuno','40 g cereal integral + 200 ml leche semidesnatada + fruta  ó  2 tostadas + jamón',Math.round(cal*.20)],
         ['Snack AM','1 fruta  ó  1 yogur  ó  20 g frutos secos (elige uno)',Math.round(cal*.08)],
-        ['Almuerzo','150 g proteína + ración vegetal + 60–80 g carbohidrato cocido',Math.round(cal*.36)],
+        ['Almuerzo','150 g proteína + ración vegetal + 60-80 g carbohidrato cocido',Math.round(cal*.36)],
         ['Snack PM','1 fruta  ó  2 galletas integrales  ó  1 vaso kéfir',Math.round(cal*.08)],
         ['Cena','Proteína + 2 raciones vegetales. Ej: tortilla 2 huevos + ensalada + caldo',Math.round(cal*.28)],
       ]
@@ -1171,7 +1242,7 @@ function descargarPDF() {
   subTitle('Alimentos recomendados');
   ['Verduras y hortalizas (sin límite casi)','Proteínas magras: pollo, pavo, pescado, huevos',
    'Legumbres: lentejas, garbanzos, alubias','Cereales integrales: avena, arroz integral, pasta integral',
-   'Frutas frescas (2–3 piezas/día)','Aceite de oliva virgen extra (con moderación)',
+   'Frutas frescas (2-3 piezas/día)','Aceite de oliva virgen extra (con moderación)',
    'Lácteos desnatados/fermentados: yogur, kéfir','Agua, infusiones sin azúcar, café negro'].forEach(t=>bullet(t));
   y += 4;
   subTitle('Alimentos a limitar');
@@ -1188,7 +1259,7 @@ function descargarPDF() {
   const projW = [35,38,38,38,11];
   tableHeader(['Momento','Peso proyectado','Pérdida acum.','IMC estimado',''], projW);
   let pw = d.pesoActual;
-  tableRow(['Inicio', pw.toFixed(1)+' kg', '—', calcIMC(pw,d.altura/100).toFixed(1), ''], projW, true);
+  tableRow(['Inicio', pw.toFixed(1)+' kg', '-', calcIMC(pw,d.altura/100).toFixed(1), ''], projW, true);
   for (let i=1; i<=d.meses; i++) {
     pw = Math.max(d.pesoActual-(perdSem*4.33*i), d.pesoObjetivo);
     tableRow(['Mes '+i, pw.toFixed(1)+' kg', (d.pesoActual-pw).toFixed(1)+' kg', calcIMC(pw,d.altura/100).toFixed(1), ''], projW, i%2===0);
@@ -1243,28 +1314,34 @@ function descargarPDF() {
 
   checkY(10);
   subTitle('Consejos clave de seguimiento');
-  bullet('Hidratación: bebe 1.5–2.5 litros de agua al día. Un vaso antes de cada comida reduce el apetito.');
-  bullet('Sueño: dormir 7–9 horas regula ghrelina y leptina (hormonas del hambre).');
+  bullet('Hidratación: bebe 1.5-2.5 litros de agua al día. Un vaso antes de cada comida reduce el apetito.');
+  bullet('Sueño: dormir 7-9 horas regula ghrelina y leptina (hormonas del hambre).');
   bullet('Pesaje: pésate 1 vez/semana en las mismas condiciones (mañana, en ayunas). El peso fluctúa ±2 kg a diario.');
   bullet('Registro: añade tu peso en la app para actualizar la curva real y detectar desviaciones.');
   bullet('Constancia: no busques perfección diaria. Una semana difícil no arruina el progreso de meses.');
   bullet('Ajuste: si llevas 3 semanas sin bajar, usa "Recalcular plan" para actualizar el plan desde hoy.');
-  // Aviso guardado de datos
-  checkY(10);
-  doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, 9, 2, 2, 'F');
+  // Aviso guardado de datos - sin emoji, caja dinámica con splitTextToSize
+  checkY(16);
+  const avisoGuardar = 'IMPORTANTE: Recuerde guardar los datos actualizados (boton "Guardar datos JSON") para poder continuar el seguimiento en futuras sesiones.';
+  const avisoGuardarLines = doc.splitTextToSize(avisoGuardar, CW-8);
+  const avisoGuardarH = avisoGuardarLines.length * 5.5 + 6;
+  doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, avisoGuardarH, 2, 2, 'F');
   doc.setTextColor(161,98,7); doc.setFont('helvetica','italic'); doc.setFontSize(8);
-  doc.text('💾 Recuerde guardar los datos actualizados (botón "Guardar datos JSON") para continuar el seguimiento en futuras sesiones.', M+3, y+6, {maxWidth: CW-6});
-  y += 13;
+  avisoGuardarLines.forEach((l,i) => doc.text(l, M+4, y+6+i*5.5));
+  doc.setFont('helvetica','normal');
+  y += avisoGuardarH + 4;
 
   // ========== AVISO LEGAL ==========
-  checkY(22);
-  doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, 22, 3, 3, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  const avisoText = 'Consulta siempre a tu medico o dietista-nutricionista antes de comenzar este plan. Este documento ofrece estimaciones orientativas basadas en formulas de uso cientifico general (Mifflin-St Jeor). No sustituye el asesoramiento medico personalizado.';
+  const avisoLines = doc.splitTextToSize(avisoText, CW-8);
+  const avisoH = avisoLines.length * 5 + 14;
+  checkY(avisoH + 4);
+  doc.setFillColor(255,251,235); doc.roundedRect(M, y, CW, avisoH, 3, 3, 'F');
   doc.setTextColor(...A); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('AVISO MÉDICO IMPORTANTE', M+4, y+7);
+  doc.text('AVISO MEDICO IMPORTANTE', M+4, y+7);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  const aviso = 'Consulta siempre a tu médico o dietista-nutricionista antes de comenzar este plan. Este documento ofrece estimaciones orientativas basadas en fórmulas de uso científico general (Mifflin-St Jeor). No sustituye el asesoramiento médico personalizado.';
-  const aLines = doc.splitTextToSize(aviso, CW-8);
-  aLines.forEach((l,i) => doc.text(l, M+4, y+13+i*5));
+  avisoLines.forEach((l,i) => doc.text(l, M+4, y+13+i*5));
 
   // Pie de página en todas las páginas
   const totalPages = doc.getNumberOfPages();
@@ -1272,7 +1349,7 @@ function descargarPDF() {
     doc.setPage(p);
     doc.setFillColor(...V); doc.rect(0,287,W,10,'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
-    doc.text('WalkForLife — Plan generado el '+fecha+(d.nombre?' para '+d.nombre:''), M, 293);
+    doc.text('WalkForLife - Plan generado el '+fecha+(d.nombre?' para '+d.nombre:''), M, 293);
     doc.text('Página '+p+' de '+totalPages, W-M, 293, {align:'right'});
   }
 
@@ -1320,7 +1397,7 @@ function actualizarIMC() {
   if (imc >= 25) {
     // Peso para IMC 24.9
     const pesoSano = (24.9 * altM * altM).toFixed(1);
-    sugerEl.textContent = `💡 Peso sugerido para normopeso: ${pesoSano} kg (IMC 24.9)`;
+    sugerEl.textContent = ` Peso sugerido para normopeso: ${pesoSano} kg (IMC 24.9)`;
     sugerEl.classList.remove('hidden');
     document.getElementById('suggPesoObj').textContent = `Sugerencia saludable: ${pesoSano} kg`;
     document.getElementById('suggPesoObj').classList.remove('hidden');
@@ -1329,12 +1406,12 @@ function actualizarIMC() {
     document.getElementById('gananciaAviso').classList.add('hidden');
   } else if (imc >= 18.5) {
     // Normopeso: mostrar modo ganancia
-    sugerEl.textContent = `✅ Tu IMC está en rango saludable. Puedes definir un objetivo de ganancia muscular.`;
+    sugerEl.textContent = `[OK] Tu IMC está en rango saludable. Puedes definir un objetivo de ganancia muscular.`;
     sugerEl.classList.remove('hidden');
     document.getElementById('suggPesoObj').classList.add('hidden');
     modoGDiv.classList.remove('hidden');
   } else {
-    sugerEl.textContent = `⚠️ IMC bajo. Consulta a tu médico antes de establecer cualquier objetivo de pérdida de peso.`;
+    sugerEl.textContent = `[!] IMC bajo. Consulta a tu médico antes de establecer cualquier objetivo de pérdida de peso.`;
     sugerEl.classList.remove('hidden');
     document.getElementById('suggPesoObj').classList.add('hidden');
     modoGDiv.classList.add('hidden');
@@ -1410,9 +1487,9 @@ function validarPesoObjetivo() {
   const maxMeses = Math.ceil(perdida / (0.5 * 4.33));
   const tiempoTxt = document.getElementById('tiempoRangoTexto');
   if (ganancia) {
-    tiempoTxt.textContent = `Para una ganancia saludable: ritmo ≤ 0.5 kg/semana · Tiempo estimado: ${minMeses}–${maxMeses} meses`;
+    tiempoTxt.textContent = `Para una ganancia saludable: ritmo <= 0.5 kg/semana · Tiempo estimado: ${minMeses}-${maxMeses} meses`;
   } else {
-    tiempoTxt.textContent = `Rango saludable: entre ${minMeses} y ${maxMeses} meses (0.5–1 kg/semana)`;
+    tiempoTxt.textContent = `Rango saludable: entre ${minMeses} y ${maxMeses} meses (0.5-1 kg/semana)`;
   }
 
   // Semáforo solo si hay tiempo elegido
@@ -1421,13 +1498,13 @@ function validarPesoObjetivo() {
     semaforo.classList.remove('hidden');
     if (perdSem <= 1.0 && perdSem >= 0.3) {
       semaforo.style.cssText = 'background:#dcfce7;color:#15803d;display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;padding:0.5rem 0.75rem;border-radius:0.5rem;';
-      semaforo.innerHTML = '🟢 Ritmo saludable: ' + perdSem.toFixed(2) + ' kg/semana';
+      semaforo.innerHTML = '[V] Ritmo saludable: ' + perdSem.toFixed(2) + ' kg/semana';
     } else if (perdSem > 1.0) {
       semaforo.style.cssText = 'background:#fef2f2;color:#dc2626;display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;padding:0.5rem 0.75rem;border-radius:0.5rem;';
-      semaforo.innerHTML = '🔴 Ritmo excesivo: ' + perdSem.toFixed(2) + ' kg/semana. Aumenta el tiempo o reduce el objetivo.';
+      semaforo.innerHTML = '[R] Ritmo excesivo: ' + perdSem.toFixed(2) + ' kg/semana. Aumenta el tiempo o reduce el objetivo.';
     } else {
       semaforo.style.cssText = 'background:#fff7ed;color:#c2410c;display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;padding:0.5rem 0.75rem;border-radius:0.5rem;';
-      semaforo.innerHTML = '🟡 Ritmo muy lento: ' + perdSem.toFixed(2) + ' kg/semana. Puedes ser más ambicioso.';
+      semaforo.innerHTML = '[A] Ritmo muy lento: ' + perdSem.toFixed(2) + ' kg/semana. Puedes ser más ambicioso.';
     }
   } else {
     semaforo.classList.add('hidden');
@@ -1448,16 +1525,16 @@ const _generarPlanOrig = generarPlan;
 // Redefine generarPlan to capture tipoPlan (done inline below)
 
 // ============================================================
-// MÓDULO: COMORBILIDADES — recomendaciones dietéticas clínicas
+// MÓDULO: COMORBILIDADES - recomendaciones dietéticas clínicas
 // (síntesis de directrices generales; no texto literal de fuentes)
 // ============================================================
 const RECS_COMORBILIDADES = {
   diabetes: {
-    titulo: '🩸 Diabetes',
+    titulo: ' Diabetes',
     color: 'bg-red-50 border-red-200',
     tc: 'text-red-800',
     recomendaciones: [
-      'Distribuir los carbohidratos en 5–6 ingestas regulares para evitar picos glucémicos.',
+      'Distribuir los carbohidratos en 5-6 ingestas regulares para evitar picos glucémicos.',
       'Priorizar carbohidratos de bajo índice glucémico: legumbres, cereales integrales, verduras.',
       'Reducir azúcares simples (azúcar, miel, refrescos, zumos) y productos ultraprocesados.',
       'Incluir fibra soluble en cada comida (avena, manzana, legumbres): enlentece la absorción de glucosa.',
@@ -1467,25 +1544,25 @@ const RECS_COMORBILIDADES = {
     ]
   },
   dislipemia: {
-    titulo: '💊 Dislipemia',
+    titulo: ' Dislipemia',
     color: 'bg-blue-50 border-blue-200',
     tc: 'text-blue-800',
     recomendaciones: [
       'Reducir las grasas saturadas (carnes grasas, lácteos enteros, mantequilla, bollería industrial).',
       'Eliminar las grasas trans presentes en margarinas vegetales parcialmente hidrogenadas y snacks.',
       'Aumentar el consumo de grasas insaturadas: aceite de oliva virgen extra, aguacate, frutos secos (30 g/día).',
-      'Consumir pescado azul 2–3 veces por semana (salmón, sardinas, caballa) por su aporte de omega-3.',
-      'Incrementar la fibra soluble: avena, psyllium, manzana, zanahoria — reduce la absorción de colesterol.',
+      'Consumir pescado azul 2-3 veces por semana (salmón, sardinas, caballa) por su aporte de omega-3.',
+      'Incrementar la fibra soluble: avena, psyllium, manzana, zanahoria - reduce la absorción de colesterol.',
       'Limitar el colesterol dietético: máximo 200 mg/día en hipercolesterolemia severa.',
       'Moderar el consumo de alcohol: aumenta los triglicéridos.'
     ]
   },
   hipertension: {
-    titulo: '❤️ Hipertensión',
+    titulo: ' Hipertensión',
     color: 'bg-purple-50 border-purple-200',
     tc: 'text-purple-800',
     recomendaciones: [
-      'Reducir el sodio a menos de 2.000–2.400 mg/día (≈ 5–6 g de sal). Evitar sal en la mesa.',
+      'Reducir el sodio a menos de 2.000-2.400 mg/día (~ 5-6 g de sal). Evitar sal en la mesa.',
       'Leer etiquetas: embutidos, conservas, quesos curados, salsas y precocinados son fuentes ocultas de sodio.',
       'Seguir el patrón DASH: abundantes frutas, verduras, lácteos desnatados, cereales integrales.',
       'Aumentar el potasio mediante frutas (plátano, naranja), verduras (patata, tomate) y legumbres.',
@@ -1495,13 +1572,13 @@ const RECS_COMORBILIDADES = {
     ]
   },
   hiperuricemia: {
-    titulo: '🔬 Hiperuricemia / Gota',
+    titulo: ' Hiperuricemia / Gota',
     color: 'bg-amber-50 border-amber-200',
     tc: 'text-amber-800',
     recomendaciones: [
       'Limitar las purinas: evitar vísceras (hígado, riñones, sesos), mariscos (mejillones, anchoas, sardinas).',
-      'Reducir carnes rojas a 1–2 raciones semanales; preferir aves y pescado blanco.',
-      'Hidratación abundante: 2–3 litros de agua/día para favorecer la excreción renal de ácido úrico.',
+      'Reducir carnes rojas a 1-2 raciones semanales; preferir aves y pescado blanco.',
+      'Hidratación abundante: 2-3 litros de agua/día para favorecer la excreción renal de ácido úrico.',
       'Evitar completamente el alcohol, especialmente cerveza y licores de alta graduación.',
       'Limitar las bebidas azucaradas con fructosa: refrescos, zumos industriales.',
       'Los lácteos desnatados tienen efecto uricosúrico (favorecen la eliminación de urato).',
@@ -1529,7 +1606,7 @@ function actualizarComorbilidades() {
     return `<div class="${r.color} border rounded-xl p-3">
       <h4 class="font-bold ${r.tc} mb-2 text-sm">${r.titulo}</h4>
       <ul class="space-y-1">${r.recomendaciones.map(rec =>
-        `<li class="text-xs ${r.tc} flex gap-2"><span class="mt-0.5 flex-shrink-0">•</span><span>${rec}</span></li>`
+        `<li class="text-xs ${r.tc} flex gap-2"><span class="mt-0.5 flex-shrink-0">-</span><span>${rec}</span></li>`
       ).join('')}</ul>
     </div>`;
   }).join('');
@@ -1545,7 +1622,7 @@ function agregarRegistro() {
   const fecha = document.getElementById('registroFecha').value;
   const peso  = parseFloat(document.getElementById('registroPeso').value);
   if (!fecha || !peso || peso < 20 || peso > 400) {
-    alert('⚠️ Introduce una fecha y un peso válidos.');
+    alert('[!] Introduce una fecha y un peso válidos.');
     return;
   }
   // Evitar duplicados de misma fecha
@@ -1596,7 +1673,7 @@ function actualizarHistorialUI() {
       <td data-label="Peso"><strong>${r.peso} kg</strong></td>
       <td data-label="Δ anterior" class="${deltaColor}">${parseFloat(delta) > 0 ? '+' : ''}${delta} kg</td>
       <td data-label="Δ inicio" class="${parseFloat(deltaInicio) <= 0 ? 'text-green-600' : 'text-red-500'}">${parseFloat(deltaInicio) > 0 ? '+' : ''}${deltaInicio} kg</td>
-      <td><button onclick="eliminarRegistro(${i})" class="text-xs text-red-400 hover:text-red-600">✕</button></td>
+      <td><button onclick="eliminarRegistro(${i})" class="text-xs text-red-400 hover:text-red-600">x</button></td>
     </tr>`;
   }).join('');
 
@@ -1625,9 +1702,9 @@ function detectarDesviacion() {
   if (Math.abs(parseFloat(desviacion)) >= 1) {
     avisoDiv.classList.remove('hidden');
     if (parseFloat(desviacion) > 0) {
-      avisoTxt.textContent = `⚠️ Tu peso actual (${ultimo.peso} kg) está ${desviacion} kg por encima de la proyección (${pesoEsperado.toFixed(1)} kg). Considera recalcular el plan.`;
+      avisoTxt.textContent = `[!] Tu peso actual (${ultimo.peso} kg) está ${desviacion} kg por encima de la proyección (${pesoEsperado.toFixed(1)} kg). Considera recalcular el plan.`;
     } else {
-      avisoTxt.textContent = `🎉 ¡Vas mejor de lo esperado! Tu peso (${ultimo.peso} kg) está ${Math.abs(desviacion)} kg por debajo de la proyección (${pesoEsperado.toFixed(1)} kg).`;
+      avisoTxt.textContent = ` ¡Vas mejor de lo esperado! Tu peso (${ultimo.peso} kg) está ${Math.abs(desviacion)} kg por debajo de la proyección (${pesoEsperado.toFixed(1)} kg).`;
     }
   } else {
     avisoDiv.classList.add('hidden');
@@ -1641,7 +1718,7 @@ function recalcularPlan() {
   const nuevoPesoActual = ultimo.peso;
   const pesoObj = planData.pesoObjetivo;
   if (nuevoPesoActual <= pesoObj) {
-    alert('🎉 ¡Ya has alcanzado o superado tu objetivo! No es necesario recalcular.');
+    alert(' ¡Ya has alcanzado o superado tu objetivo! No es necesario recalcular.');
     return;
   }
   const perdida = nuevoPesoActual - pesoObj;
@@ -1677,7 +1754,7 @@ function recalcularPlan() {
   avisoDiv.classList.remove('hidden');
   avisoDiv.style.background = '#f0fdf4';
   avisoDiv.style.borderColor = '#86efac';
-  avisoTxt.innerHTML = `✅ <strong>Plan recalculado.</strong> Desde ${nuevoPesoActual} kg hasta ${pesoObj} kg en ~${mesesNec} meses. Nueva ingesta: ${nuevoCalObjetivo} kcal/día.`;
+  avisoTxt.innerHTML = `[OK] <strong>Plan recalculado.</strong> Desde ${nuevoPesoActual} kg hasta ${pesoObj} kg en ~${mesesNec} meses. Nueva ingesta: ${nuevoCalObjetivo} kcal/día.`;
   avisoTxt.className = 'text-sm text-green-700 font-medium';
 }
 
@@ -1750,7 +1827,7 @@ function actualizarGrafica() {
       responsive: true,
       plugins: {
         legend: { display: true, labels: { color: '#166534', font: { family: 'DM Sans', weight: '600' }, padding: 16 } },
-        tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y + ' kg' : '—'}` } }
+        tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y + ' kg' : '-'}` } }
       },
       scales: {
         y: { title: { display: true, text: 'Peso (kg)', color: '#4b7a51' }, grid: { color: 'rgba(22,101,52,0.08)' }, ticks: { color: '#4b7a51' } },
@@ -1766,7 +1843,7 @@ function actualizarGrafica() {
 
 /** Exporta planData + historial como fichero JSON descargable */
 function exportarJSON() {
-  if (!planData.pesoActual) { alert('⚠️ Genera un plan antes de exportar.'); return; }
+  if (!planData.pesoActual) { alert('[!] Genera un plan antes de exportar.'); return; }
   const datos = {
     version: '1.0',
     exportado: new Date().toISOString(),
@@ -1819,11 +1896,113 @@ function importarJSON(event) {
         if (tabBtn) tabBtn.click();
       }, 400);
     } catch(err) {
-      alert('❌ Error al cargar el archivo: ' + err.message);
+      alert('[X] Error al cargar el archivo: ' + err.message);
     }
     event.target.value = ''; // reset input
   };
   reader.readAsText(file);
+}
+
+// ============================================================
+// MÓDULO: % GRASA CORPORAL
+// ============================================================
+let grasaMode = 'directo'; // 'directo' | 'navy'
+
+/** Abre/cierra el panel colapsable */
+function toggleGrasaPanel() {
+  const panel = document.getElementById('grasaPanel');
+  const icon  = document.getElementById('grasaToggleIcon');
+  const open  = panel.classList.toggle('hidden');
+  icon.textContent = open ? '+' : '-';
+}
+
+/** Cambia entre modo directo y modo Navy */
+function setGrasaMode(mode) {
+  grasaMode = mode;
+  document.getElementById('grasaModoDirecto').classList.toggle('hidden', mode !== 'directo');
+  document.getElementById('grasaModoNavy').classList.toggle('hidden', mode !== 'navy');
+  document.getElementById('grasaTabDirecto').classList.toggle('active', mode === 'directo');
+  document.getElementById('grasaTabNavy').classList.toggle('active', mode === 'navy');
+  calcularGrasa();
+}
+
+/**
+ * Clasifica el % de grasa según tablas ACE (American Council on Exercise)
+ * y genera un consejo orientativo.
+ */
+function clasificarGrasa(pct, sexo) {
+  if (sexo === 'hombre') {
+    if (pct < 6)  return { texto: 'Grasa esencial (muy bajo)', color: 'badge-blue',   consejo: 'Nivel inferior al minimo fisiologico recomendado. Consulta a un profesional.' };
+    if (pct < 14) return { texto: 'Atletico',                  color: 'badge-green',  consejo: 'Nivel propio de deportistas. Ideal para el rendimiento fisico.' };
+    if (pct < 18) return { texto: 'En forma (fitness)',        color: 'badge-green',  consejo: 'Excelente nivel de composicion corporal.' };
+    if (pct < 25) return { texto: 'Aceptable',                 color: 'badge-orange', consejo: 'Dentro del rango normal para adultos. Hay margen de mejora.' };
+    return               { texto: 'Obesidad (exceso de grasa)',color: 'badge-orange', consejo: 'Un porcentaje elevado aumenta el riesgo cardiometabolico independientemente del IMC.' };
+  } else {
+    if (pct < 14) return { texto: 'Grasa esencial (muy bajo)', color: 'badge-blue',   consejo: 'Nivel inferior al minimo fisiologico recomendado. Consulta a un profesional.' };
+    if (pct < 21) return { texto: 'Atletico',                  color: 'badge-green',  consejo: 'Nivel propio de deportistas. Ideal para el rendimiento fisico.' };
+    if (pct < 25) return { texto: 'En forma (fitness)',        color: 'badge-green',  consejo: 'Excelente nivel de composicion corporal.' };
+    if (pct < 32) return { texto: 'Aceptable',                 color: 'badge-orange', consejo: 'Dentro del rango normal para adultos. Hay margen de mejora.' };
+    return               { texto: 'Obesidad (exceso de grasa)',color: 'badge-orange', consejo: 'Un porcentaje elevado aumenta el riesgo cardiometabolico independientemente del IMC.' };
+  }
+}
+
+/** Calcula y muestra el % de grasa según el modo activo */
+function calcularGrasa() {
+  const peso  = parseFloat(document.getElementById('pesoActual').value) || 0;
+  const sexo  = document.getElementById('sexo').value;
+  const altura = parseFloat(document.getElementById('altura').value) || 0;
+  let pct = null;
+
+  if (grasaMode === 'directo') {
+    pct = parseFloat(document.getElementById('grasaDirecta').value);
+    if (isNaN(pct) || pct < 3 || pct > 60) { document.getElementById('grasaResultado').classList.add('hidden'); return; }
+  } else {
+    // Fórmula Navy (logarítmica)
+    const cuello  = parseFloat(document.getElementById('pCuello').value);
+    const cintura = parseFloat(document.getElementById('pCintura').value);
+    const cadera  = parseFloat(document.getElementById('pCadera').value);
+
+    // Mostrar/ocultar campo cadera según sexo
+    const caderaDiv = document.getElementById('pCaderaDiv');
+    if (caderaDiv) caderaDiv.style.display = (sexo === 'mujer') ? '' : 'none';
+
+    if (!cuello || !cintura || !altura) { document.getElementById('grasaResultado').classList.add('hidden'); return; }
+    if (sexo === 'mujer' && !cadera)    { document.getElementById('grasaResultado').classList.add('hidden'); return; }
+
+    if (sexo === 'hombre') {
+      pct = 495 / (1.0324 - 0.19077 * Math.log10(cintura - cuello) + 0.15456 * Math.log10(altura)) - 450;
+    } else {
+      pct = 495 / (1.29579 - 0.35004 * Math.log10(cintura + cadera - cuello) + 0.22100 * Math.log10(altura)) - 450;
+    }
+    pct = Math.round(pct * 10) / 10;
+    if (pct < 3 || pct > 70) { document.getElementById('grasaResultado').classList.add('hidden'); return; }
+  }
+
+  // Mostrar resultados
+  const masaGrasa = peso ? (peso * pct / 100).toFixed(1) : '-';
+  const masaMagra = peso ? (peso * (1 - pct / 100)).toFixed(1) : '-';
+  const clasif    = clasificarGrasa(pct, sexo || 'hombre');
+
+  document.getElementById('grasaPorcentaje').textContent = pct.toFixed(1) + '%';
+  document.getElementById('grasaMasaGrasa').textContent  = masaGrasa + (peso ? ' kg' : '');
+  document.getElementById('grasaMasaMagra').textContent  = masaMagra + (peso ? ' kg' : '');
+
+  const badge = document.getElementById('grasaClasifBadge');
+  const colorMap = { 'badge-green': ['#dcfce7','#15803d'], 'badge-orange': ['#fff7ed','#c2410c'], 'badge-blue': ['#eff6ff','#1d4ed8'] };
+  const [bg, tc] = colorMap[clasif.color] || colorMap['badge-green'];
+  badge.textContent = clasif.texto;
+  badge.style.background = bg; badge.style.color = tc;
+
+  document.getElementById('grasaConsejo').textContent = clasif.consejo;
+  document.getElementById('grasaResultado').classList.remove('hidden');
+
+  // Guardar en planData si ya existe
+  if (planData.pesoActual) {
+    planData.grasaPct     = pct;
+    planData.grasaClasif  = clasif.texto;
+    planData.masaGrasa    = masaGrasa;
+    planData.masaMagra    = masaMagra;
+  }
 }
 
 setupPWA();
