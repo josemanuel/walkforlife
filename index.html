@@ -114,6 +114,16 @@ body::before {
 ::-webkit-scrollbar { width:6px; }
 ::-webkit-scrollbar-track { background:#f8faf7; }
 ::-webkit-scrollbar-thumb { background:#86efac; border-radius:9999px; }
+/* Activity cards */
+.act-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; padding:0.75rem 0.5rem; border:2px solid #e2e8f0; border-radius:0.875rem; background:white; cursor:pointer; transition:all 0.2s; text-align:center; user-select:none; }
+.act-card:hover { border-color:#86efac; background:#f0fdf4; }
+.act-card.act-selected { border-color:#166534; background:#dcfce7; }
+.act-name { font-size:0.75rem; font-weight:600; color:#2d4a30; }
+.act-lock { font-size:0.65rem; }
+.reparto-row { display:flex; align-items:center; gap:0.75rem; }
+.reparto-label { min-width:95px; font-size:0.8rem; font-weight:600; color:#166534; display:flex; align-items:center; gap:0.375rem; flex-shrink:0; }
+.reparto-slider { flex:1; accent-color:#166534; }
+.reparto-pct { min-width:42px; text-align:right; font-size:0.875rem; font-weight:700; color:#166534; }
 .table-wrap { overflow-x:auto; border-radius:0.875rem; -webkit-overflow-scrolling:touch; }
 /* Semana grid mobile */
 .week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:0.25rem; }
@@ -132,7 +142,7 @@ body::before {
       <img src="LogoWalkforlife.png" alt="WalkForLife" style="height:130px;width:auto;filter:drop-shadow(0 4px 24px rgba(0,0,0,0.3));">
     </div>
     <p class="text-green-100 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-      Plan personalizado de pérdida de peso y vida saludable
+      Plan personalizado de pérdida de peso y vida saludable. (c) Dr. J.M.F. Carreira
     </p>
   </div>
 </div>
@@ -294,6 +304,51 @@ body::before {
           <option value="6">6 meses</option>
         </select>
         <p class="field-error" id="err-meses">⚠ Selecciona el tiempo deseado.</p>
+      </div>
+    </div>
+
+    <!-- ACTIVIDADES FÍSICAS -->
+    <div class="sm:col-span-2 lg:col-span-3">
+      <label class="form-label">🏃 Actividades físicas disponibles</label>
+      <p class="text-xs text-gray-500 mb-3">Selecciona las actividades que puedes realizar. Caminar es la actividad base (siempre incluida). Ajusta el reparto con los controles deslizantes.</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4" id="actividadesGrid">
+        <!-- Caminar: base, no desmarcable -->
+        <div class="act-card act-selected" data-act="caminar" style="cursor:default;" title="Actividad base siempre incluida">
+          <span class="text-2xl">🚶</span>
+          <span class="act-name">Caminar</span>
+          <span class="act-lock text-xs text-green-600">✓ Base</span>
+        </div>
+        <div class="act-card" data-act="bicicleta" title="Añadir bicicleta al plan">
+          <span class="text-2xl">🚴</span>
+          <span class="act-name">Bicicleta</span>
+        </div>
+        <div class="act-card" data-act="natacion" title="Añadir natación al plan">
+          <span class="text-2xl">🏊</span>
+          <span class="act-name">Natación</span>
+        </div>
+        <div class="act-card" data-act="eliptica" title="Añadir elíptica al plan">
+          <span class="text-2xl">⚙️</span>
+          <span class="act-name">Elíptica</span>
+        </div>
+        <div class="act-card" data-act="senderismo" title="Añadir senderismo al plan">
+          <span class="text-2xl">🥾</span>
+          <span class="act-name">Senderismo</span>
+        </div>
+        <div class="act-card" data-act="baile" title="Añadir baile/zumba al plan">
+          <span class="text-2xl">💃</span>
+          <span class="act-name">Baile/Zumba</span>
+        </div>
+      </div>
+
+      <!-- Panel de reparto — visible solo cuando hay >1 actividad -->
+      <div id="repartoPanel" class="hidden mt-2 p-4 bg-forest-50 border border-green-200 rounded-xl" style="background:#f0fdf4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-semibold text-forest-800 text-sm">⚖️ Reparto semanal de actividad</h4>
+          <span id="repartoSuma" class="badge badge-green text-xs">Total: 100%</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-4">Ajusta qué porcentaje de los días activos dedicarás a cada actividad. El total debe sumar 100%.</p>
+        <div id="repartoSliders" class="space-y-3"></div>
+        <div id="repartoError" class="hidden mt-2 text-xs text-red-600 font-semibold">⚠ El total debe ser exactamente 100%.</div>
       </div>
     </div>
 
@@ -545,6 +600,8 @@ function generarPlan() {
   const meses = parseInt(document.getElementById('meses').value);
   const modoGanancia = document.getElementById('modoGanancia').checked;
   const tipoPlan = modoGanancia ? 'ganancia' : 'perdida';
+  // Capturar actividades seleccionadas y su reparto
+  const actividadesSeleccionadas = leerReparto();
   // Capturar comorbilidades seleccionadas
   const comorbilidades = ['diabetes','dislipemia','hipertension','hiperuricemia']
     .filter(c => document.getElementById('cb-'+c) && document.getElementById('cb-'+c).checked);
@@ -628,7 +685,8 @@ function generarPlan() {
   const calObjetivo = Math.max(1200, tdee - deficit);
   deficit = tdee - calObjetivo;
 
-  planData = { nombre, altura, pesoActual, pesoObjetivo, edad, sexo, meses, tipoPlan, comorbilidades,
+  planData = { nombre, altura, pesoActual, pesoObjetivo, edad, sexo, meses, tipoPlan,
+               comorbilidades, actividadesSeleccionadas,
                grasaPct, grasaClasif, masaGrasa, masaMagra,
                perdidaTotal, perdidaSemanal: Math.min(perdidaSemanal,1), semanas,
                imcActual, imcObjetivo, tmb, tdee, deficit, calObjetivo,
@@ -712,23 +770,27 @@ function renderEvaluacion() {
 // EJERCICIO
 // ============================================================
 function renderEjercicio() {
-  document.getElementById('ejercicioContent').innerHTML = `
-    <p class="text-gray-600 mb-5 leading-relaxed">Plan de <strong>progresión gradual de 6 semanas</strong> (repetible). Enfoque principal en <strong>caminar</strong>, complementado con fuerza de peso corporal para preservar músculo.</p>
-    <h3 class="font-display text-xl text-forest-800 mb-3">📅 Plan Progresivo – 6 Semanas</h3>
-    <div class="table-wrap mb-7">
-      <table class="data-table">
-        <thead><tr><th>Semana</th><th>Minutos/día</th><th>Pasos obj.</th><th>Ritmo</th><th>Distancia</th><th>Días</th></tr></thead>
-        <tbody>
-          <tr><td data-label="Semana"><strong>Semana 1</strong></td><td data-label="Minutos/día">25–30 min</td><td data-label="Pasos">6.000</td><td data-label="Ritmo">Normal (4 km/h)</td><td data-label="Distancia">~1.7 km</td><td data-label="Días">5/sem</td></tr>
-          <tr><td data-label="Semana"><strong>Semana 2</strong></td><td data-label="Minutos/día">30–35 min</td><td data-label="Pasos">7.500</td><td data-label="Ritmo">Normal-rápido (4.5 km/h)</td><td data-label="Distancia">~2.2 km</td><td data-label="Días">5/sem</td></tr>
-          <tr><td data-label="Semana"><strong>Semana 3</strong></td><td data-label="Minutos/día">35–40 min</td><td data-label="Pasos">8.500</td><td data-label="Ritmo">Rápido (5 km/h)</td><td data-label="Distancia">~3 km</td><td data-label="Días">5/sem</td></tr>
-          <tr><td data-label="Semana"><strong>Semana 4</strong></td><td data-label="Minutos/día">40–45 min</td><td data-label="Pasos">9.500</td><td data-label="Ritmo">Rápido (5 km/h)</td><td data-label="Distancia">~3.5 km</td><td data-label="Días">6/sem</td></tr>
-          <tr><td data-label="Semana"><strong>Semana 5</strong></td><td data-label="Minutos/día">45–50 min</td><td data-label="Pasos">10.000</td><td data-label="Ritmo">Muy rápido (5.5 km/h)</td><td data-label="Distancia">~4 km</td><td data-label="Días">6/sem</td></tr>
-          <tr><td data-label="Semana"><strong>Semana 6</strong></td><td data-label="Minutos/día">50–60 min</td><td data-label="Pasos">11.000+</td><td data-label="Ritmo">Muy rápido (5.5 km/h)</td><td data-label="Distancia">~5 km</td><td data-label="Días">6/sem</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3 class="font-display text-xl text-forest-800 mb-3">💪 Fuerza corporal (2–3x semana)</h3>
+  const acts = planData.actividadesSeleccionadas || [{id:'caminar', pct:100}];
+  const container = document.getElementById('ejercicioContent');
+
+  // Intro paragraph
+  const nombresActs = acts.map(a => ACTIVIDADES_CONFIG[a.id]?.nombre || a.id).join(', ');
+  let html = `<p class="text-gray-600 mb-5 leading-relaxed">Plan de <strong>progresión gradual de 6 semanas</strong> (repetible). Actividades seleccionadas: <strong>${nombresActs}</strong>. Complementado con fuerza de peso corporal para preservar músculo.</p>`;
+
+  // Plan por actividad
+  acts.forEach(act => {
+    const cfg = ACTIVIDADES_CONFIG[act.id];
+    if (!cfg) return;
+    const diasSem = Math.round((act.pct / 100) * 5.5); // base 5.5 días activos/sem
+    html += buildTablaActividad(cfg, act.pct, Math.max(1, diasSem));
+  });
+
+  // Distribución semanal dinámica
+  html += buildDistribucionSemanal(acts);
+
+  // Fuerza
+  html += `
+    <h3 class="font-display text-xl text-forest-800 mb-3 mt-6">💪 Fuerza corporal (2–3x semana)</h3>
     <div class="table-wrap mb-7">
       <table class="data-table">
         <thead><tr><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Descanso</th><th>Músculos</th></tr></thead>
@@ -741,19 +803,10 @@ function renderEjercicio() {
           <tr><td data-label="Ejercicio">Superman (dorsal)</td><td data-label="Series">3</td><td data-label="Reps">12</td><td data-label="Descanso">45 s</td><td data-label="Músculos">Espalda baja</td></tr>
         </tbody>
       </table>
-    </div>
-    <h3 class="font-display text-xl text-forest-800 mb-3">📆 Distribución semanal ejemplo</h3>
-    <div class="week-grid mb-7">
-      ${[
-        {dia:'Lun',tipo:'Caminata + Fuerza',cl:'bg-green-100 border-green-400 text-green-800'},
-        {dia:'Mar',tipo:'Caminata',cl:'bg-green-50 border-green-300 text-green-700'},
-        {dia:'Mié',tipo:'Fuerza + Estiram.',cl:'bg-blue-50 border-blue-300 text-blue-700'},
-        {dia:'Jue',tipo:'Caminata',cl:'bg-green-50 border-green-300 text-green-700'},
-        {dia:'Vie',tipo:'Caminata + Fuerza',cl:'bg-green-100 border-green-400 text-green-800'},
-        {dia:'Sáb',tipo:'Caminata larga',cl:'bg-yellow-50 border-yellow-300 text-yellow-800'},
-        {dia:'Dom',tipo:'Descanso activo',cl:'bg-gray-50 border-gray-300 text-gray-600'},
-      ].map(x=>`<div class="border-2 rounded-xl p-2 text-center text-xs font-semibold ${x.cl}"><div class="font-bold mb-1">${x.dia}</div><div>${x.tipo}</div></div>`).join('')}
-    </div>
+    </div>`;
+
+  // Alternativas clima
+  html += `
     <h3 class="font-display text-xl text-forest-800 mb-3">🌧️ Alternativas para mal tiempo</h3>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="bg-blue-50 border border-blue-200 rounded-xl p-4"><div class="text-2xl mb-2">🪜</div><h4 class="font-semibold text-blue-800 mb-1">Escaleras</h4><p class="text-sm text-blue-600">15–20 min subiendo/bajando. Equivale a ~30 min de caminata en intensidad.</p></div>
@@ -762,8 +815,10 @@ function renderEjercicio() {
     </div>
     <div class="bg-green-50 border border-green-200 rounded-xl p-4">
       <h4 class="font-semibold text-green-700 mb-1">🧘 Estiramientos diarios (10 min)</h4>
-      <p class="text-sm text-green-600">Gemelos · Cuádriceps · Isquiotibiales · Caderas · Espalda baja · Hombros — 30 seg c/u × 2 veces. Especialmente después de cada caminata.</p>
+      <p class="text-sm text-green-600">Gemelos · Cuádriceps · Isquiotibiales · Caderas · Espalda baja · Hombros — 30 seg c/u × 2 veces. Especialmente después de cada sesión.</p>
     </div>`;
+
+  container.innerHTML = html;
 }
 
 // ============================================================
@@ -914,6 +969,14 @@ function nuevoPlan(){
     if(el) el.checked = false;
   });
   document.getElementById('comorbilidadesPanel').classList.add('hidden');
+  // Reset actividades
+  ['bicicleta','natacion','eliptica','senderismo','baile'].forEach(id=>{
+    actividadesActivas.delete(id);
+    const card = document.querySelector(`[data-act="${id}"]`);
+    if(card) card.classList.remove('act-selected');
+  });
+  document.getElementById('repartoPanel').classList.add('hidden');
+  document.getElementById('repartoSliders').innerHTML = '';
   // Reset historial display
   historialRegistros = [];
   document.getElementById('historialDiv').classList.add('hidden');
@@ -1087,27 +1150,43 @@ function descargarPDF() {
   y += 4;
 
   // ========== 3. PROGRAMA EJERCICIO ==========
-  sectionTitle('3. Programa de Ejercicio - Enfoque Caminar');
-  subTitle('Plan progresivo 6 semanas (repetible)');
-  const ejW = [28,28,28,36,28,22];
-  tableHeader(['Semana','Minutos','Pasos','Ritmo','Distancia','Días'], ejW);
-  [['Sem. 1','25-30','6.000','Normal 4 km/h','~1.7 km','5/sem'],
-   ['Sem. 2','30-35','7.500','Normal-rápido 4.5 km/h','~2.2 km','5/sem'],
-   ['Sem. 3','35-40','8.500','Rápido 5 km/h','~3 km','5/sem'],
-   ['Sem. 4','40-45','9.500','Rápido 5 km/h','~3.5 km','6/sem'],
-   ['Sem. 5','45-50','10.000','Muy rápido 5.5 km/h','~4 km','6/sem'],
-   ['Sem. 6','50-60','11.000+','Muy rápido 5.5 km/h','~5 km','6/sem'],
-  ].forEach((r,i) => tableRow(r,ejW,i%2===0));
-  y += 6;
+  // ========== 3. PROGRAMA EJERCICIO (multi-actividad) ==========
+  sectionTitle('3. Programa de Ejercicio');
+  const actsP = d.actividadesSeleccionadas || [{id:'caminar', pct:100}];
+  const actNombresP = actsP.map(a => {
+    const cfgP = ACTIVIDADES_CONFIG[a.id];
+    return (cfgP ? cfgP.nombre : a.id) + ' (' + a.pct + '%)';
+  }).join(' + ');
+  checkY(8);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  const actLine = doc.splitTextToSize('Actividades: ' + actNombresP, CW);
+  actLine.forEach(l => { doc.text(l, M, y); y += 5.5; });
+  y += 4;
+
+  actsP.forEach(act => {
+    const cfgP = ACTIVIDADES_CONFIG[act.id];
+    if (!cfgP) return;
+    checkY(55);
+    subTitle(cfgP.nombre + ' - MET ' + cfgP.met + ' - Reparto: ' + act.pct + '%');
+    const aW = [16,20,52,52,20];
+    tableHeader(['Sem.','Min.','Intensidad / Ritmo','Equiv. / Distancia','Dias'], aW);
+    cfgP.progresion.forEach((s,i) => {
+      const diasEf = Math.max(1, Math.round((act.pct/100)*s.dias));
+      tableRow([String(s.sem), s.min, s.ritmo, s.equiv, diasEf+'/sem'], aW, i%2===0);
+    });
+    y += 3;
+    cfgP.consejos.forEach(c => bullet(c));
+    y += 5;
+  });
 
   subTitle('Entrenamiento de Fuerza (2-3 sesiones/semana)');
   const fuW = [52,20,30,30,38];
-  tableHeader(['Ejercicio','Series','Reps','Descanso','Músculos'], fuW);
-  [['Sentadillas','3','12-15','60 s','Piernas, glúteos'],
+  tableHeader(['Ejercicio','Series','Reps','Descanso','Musculos'], fuW);
+  [['Sentadillas','3','12-15','60 s','Piernas, gluteos'],
    ['Flexiones (rodillas si precisa)','3','8-12','60 s','Pecho, hombros'],
-   ['Zancadas alternadas','3','10/pierna','60 s','Piernas, glúteos'],
+   ['Zancadas alternadas','3','10/pierna','60 s','Piernas, gluteos'],
    ['Plancha abdominal','3','20-40 s','45 s','Core, abdomen'],
-   ['Hip thrust (en suelo)','3','15','45 s','Glúteos, isquios'],
+   ['Hip thrust (en suelo)','3','15','45 s','Gluteos, isquios'],
    ['Superman (dorsal)','3','12','45 s','Espalda baja'],
   ].forEach((r,i) => tableRow(r,fuW,i%2===0));
   y += 6;
@@ -1875,6 +1954,19 @@ function importarJSON(event) {
       planData = datos.planData;
       historialRegistros = Array.isArray(datos.historial) ? datos.historial : [];
 
+      // Restaurar actividades en el Set y las tarjetas
+      actividadesActivas.clear();
+      actividadesActivas.add('caminar');
+      const savedActs = (planData.actividadesSeleccionadas || []).map(a => a.id);
+      savedActs.forEach(id => {
+        if (id !== 'caminar') {
+          actividadesActivas.add(id);
+          const card = document.querySelector(`[data-act="${id}"]`);
+          if (card) card.classList.add('act-selected');
+        }
+      });
+      if (actividadesActivas.size > 1) actualizarRepartoSliders();
+
       // Restaurar comorbilidades en checkboxes
       const coms = datos.comorbilidades || planData.comorbilidades || [];
       ['diabetes','dislipemia','hipertension','hiperuricemia'].forEach(c => {
@@ -2004,6 +2096,318 @@ function calcularGrasa() {
     planData.masaMagra    = masaMagra;
   }
 }
+
+// ============================================================
+// MÓDULO: ACTIVIDADES FÍSICAS
+// Datos MET (Ainsworth Compendium of Physical Activities 2011)
+// minBase/minMax: rango de minutos por sesión en semana 1/semana 6
+// progresion: array de 6 elementos [min_semana_i, pasos_equiv_i]
+// ============================================================
+const ACTIVIDADES_CONFIG = {
+  caminar: {
+    id: 'caminar', nombre: 'Caminar', emoji: '🚶', met: 3.5, color: 'green',
+    bgCard: 'bg-green-50 border-green-300',
+    progresion: [
+      {sem:1, min:'25–30', ritmo:'Normal (4 km/h)',      equiv:'~1.7 km · 6.000 pasos',  dias:5},
+      {sem:2, min:'30–35', ritmo:'Normal-rápido (4.5 km/h)', equiv:'~2.2 km · 7.500 pasos', dias:5},
+      {sem:3, min:'35–40', ritmo:'Rápido (5 km/h)',      equiv:'~3 km · 8.500 pasos',    dias:5},
+      {sem:4, min:'40–45', ritmo:'Rápido (5 km/h)',      equiv:'~3.5 km · 9.500 pasos',  dias:6},
+      {sem:5, min:'45–50', ritmo:'Muy rápido (5.5 km/h)',equiv:'~4 km · 10.000 pasos',   dias:6},
+      {sem:6, min:'50–60', ritmo:'Muy rápido (5.5 km/h)',equiv:'~5 km · 11.000+ pasos',  dias:6},
+    ],
+    consejos: ['Mantén la espalda erguida y balanceo de brazos activo.','Usa calzado con buen amortiguamiento.','Incrementa 5 min/semana de forma progresiva.'],
+  },
+  bicicleta: {
+    id: 'bicicleta', nombre: 'Bicicleta', emoji: '🚴', met: 7.5, color: 'blue',
+    bgCard: 'bg-blue-50 border-blue-300',
+    progresion: [
+      {sem:1, min:'20–25', ritmo:'Ritmo suave (15 km/h)',  equiv:'~5 km · resistencia baja',  dias:2},
+      {sem:2, min:'25–30', ritmo:'Ritmo suave (16 km/h)',  equiv:'~7 km · resistencia baja',  dias:2},
+      {sem:3, min:'30–35', ritmo:'Ritmo moderado (18 km/h)',equiv:'~9 km · resist. media',   dias:3},
+      {sem:4, min:'35–40', ritmo:'Ritmo moderado (18 km/h)',equiv:'~11 km · resist. media',  dias:3},
+      {sem:5, min:'40–45', ritmo:'Ritmo vivo (20 km/h)',   equiv:'~13 km · resist. media-alta',dias:3},
+      {sem:6, min:'45–55', ritmo:'Ritmo vivo (20+ km/h)',  equiv:'~15+ km · resist. alta',   dias:3},
+    ],
+    consejos: ['Ajusta el sillín a la altura correcta (rodilla ligeramente flexionada).','Usa casco y luces en exteriores.','En bici estática, incrementa la resistencia cada 2 semanas.'],
+  },
+  natacion: {
+    id: 'natacion', nombre: 'Natación', emoji: '🏊', met: 8.0, color: 'cyan',
+    bgCard: 'bg-cyan-50 border-cyan-300',
+    progresion: [
+      {sem:1, min:'20–25', ritmo:'Crol suave / braza',     equiv:'~500 m · pausas frecuentes', dias:2},
+      {sem:2, min:'25–30', ritmo:'Crol suave',             equiv:'~650 m',                    dias:2},
+      {sem:3, min:'30–35', ritmo:'Crol moderado',          equiv:'~850 m',                    dias:2},
+      {sem:4, min:'35–40', ritmo:'Crol moderado-rápido',   equiv:'~1.000 m',                  dias:3},
+      {sem:5, min:'40–45', ritmo:'Crol rápido / estilos',  equiv:'~1.200 m',                  dias:3},
+      {sem:6, min:'45–55', ritmo:'Crol rápido / estilos',  equiv:'~1.500 m',                  dias:3},
+    ],
+    consejos: ['Trabaja la técnica de respiración bilateral.','Alterna estilos (crol, braza, espalda) para equilibrio muscular.','Usa tabla de patada para fortalecer las piernas si la técnica es limitada.'],
+  },
+  eliptica: {
+    id: 'eliptica', nombre: 'Elíptica', emoji: '⚙️', met: 5.0, color: 'purple',
+    bgCard: 'bg-purple-50 border-purple-300',
+    progresion: [
+      {sem:1, min:'20–25', ritmo:'Resistencia 3–4',        equiv:'~150 kcal · cadencia baja',  dias:2},
+      {sem:2, min:'25–30', ritmo:'Resistencia 4–5',        equiv:'~190 kcal',                  dias:2},
+      {sem:3, min:'30–35', ritmo:'Resistencia 5–6',        equiv:'~230 kcal',                  dias:3},
+      {sem:4, min:'35–40', ritmo:'Resistencia 6',          equiv:'~270 kcal',                  dias:3},
+      {sem:5, min:'40–45', ritmo:'Resistencia 7',          equiv:'~310 kcal · intervalos',     dias:3},
+      {sem:6, min:'45–55', ritmo:'Resistencia 7–8',        equiv:'~360 kcal · intervalos',     dias:3},
+    ],
+    consejos: ['Mantén postura erguida, no te apoyes en las barras.','Alterna movimiento hacia adelante y hacia atrás.','Ideal para personas con molestias en rodillas (bajo impacto).'],
+  },
+  senderismo: {
+    id: 'senderismo', nombre: 'Senderismo', emoji: '🥾', met: 6.0, color: 'amber',
+    bgCard: 'bg-amber-50 border-amber-300',
+    progresion: [
+      {sem:1, min:'45–60', ritmo:'Ruta plana · desnivel 0',    equiv:'~3 km',   dias:1},
+      {sem:2, min:'60–75', ritmo:'Ruta suave · desnivel <100m',equiv:'~4 km',   dias:1},
+      {sem:3, min:'60–90', ritmo:'Desnivel 100–200 m',         equiv:'~5 km',   dias:2},
+      {sem:4, min:'75–90', ritmo:'Desnivel 200 m',             equiv:'~6 km',   dias:2},
+      {sem:5, min:'90–120',ritmo:'Desnivel 200–300 m',         equiv:'~8 km',   dias:2},
+      {sem:6, min:'120+',  ritmo:'Desnivel >300 m',            equiv:'~10+ km', dias:2},
+    ],
+    consejos: ['Lleva siempre agua (1 l por hora de marcha en calor).','Usa bastones para reducir el impacto en bajadas.','Descarga una app de mapas offline (Wikiloc, AllTrails) antes de salir.'],
+  },
+  baile: {
+    id: 'baile', nombre: 'Baile/Zumba', emoji: '💃', met: 5.5, color: 'pink',
+    bgCard: 'bg-pink-50 border-pink-300',
+    progresion: [
+      {sem:1, min:'30–35', ritmo:'Intensidad baja · pasos básicos',   equiv:'~180 kcal', dias:2},
+      {sem:2, min:'35–40', ritmo:'Intensidad baja-media',             equiv:'~220 kcal', dias:2},
+      {sem:3, min:'40–45', ritmo:'Intensidad media',                  equiv:'~260 kcal', dias:2},
+      {sem:4, min:'40–50', ritmo:'Intensidad media · coreografías',   equiv:'~290 kcal', dias:3},
+      {sem:5, min:'45–55', ritmo:'Intensidad media-alta',             equiv:'~330 kcal', dias:3},
+      {sem:6, min:'50–60', ritmo:'Intensidad alta · sesión completa', equiv:'~380 kcal', dias:3},
+    ],
+    consejos: ['Busca clases guiadas en YouTube (Zumba, salsa, bachata) si no tienes acceso a gimnasio.','Usa calzado con buena sujeción lateral.','El componente social de las clases grupales mejora la adherencia.'],
+  },
+};
+
+// Colores de fondo por actividad para pills y distribución semanal
+const ACT_COLORS = {
+  caminar:    {bg:[220,252,231], tc:[22,101,52],   border:[134,239,172], pill:'bg-green-100 border-green-400 text-green-800'},
+  bicicleta:  {bg:[219,234,254], tc:[29,78,216],   border:[147,197,253], pill:'bg-blue-100 border-blue-400 text-blue-800'},
+  natacion:   {bg:[207,250,254], tc:[14,116,144],  border:[103,232,249], pill:'bg-cyan-100 border-cyan-400 text-cyan-800'},
+  eliptica:   {bg:[243,232,255], tc:[109,40,217],  border:[196,181,253], pill:'bg-purple-100 border-purple-400 text-purple-800'},
+  senderismo: {bg:[254,243,199], tc:[146,64,14],   border:[252,211,77],  pill:'bg-amber-100 border-amber-400 text-amber-800'},
+  baile:      {bg:[252,231,243], tc:[157,23,77],   border:[249,168,212], pill:'bg-pink-100 border-pink-400 text-pink-800'},
+};
+
+// ============================================================
+// ESTADO de actividades seleccionadas (Set, siempre incluye 'caminar')
+// ============================================================
+const actividadesActivas = new Set(['caminar']);
+
+/** Toggle de actividad — llamado desde el event listener del grid */
+function toggleActividad(id) {
+  if (id === 'caminar') return; // caminar no se puede desmarcar
+  const card = document.querySelector(`[data-act="${id}"]`);
+  if (!card) return;
+
+  if (actividadesActivas.has(id)) {
+    actividadesActivas.delete(id);
+    card.classList.remove('act-selected');
+  } else {
+    actividadesActivas.add(id);
+    card.classList.add('act-selected');
+  }
+  actualizarRepartoSliders();
+}
+
+/** Recalcula y renderiza los sliders de reparto */
+function actualizarRepartoSliders() {
+  const seleccionadas = Object.keys(ACTIVIDADES_CONFIG).filter(id => actividadesActivas.has(id));
+  const panel = document.getElementById('repartoPanel');
+  if (!panel) return;
+  if (seleccionadas.length <= 1) { panel.classList.add('hidden'); return; }
+  panel.classList.remove('hidden');
+
+  const slidersDiv = document.getElementById('repartoSliders');
+  const existentes = {};
+  slidersDiv.querySelectorAll('input[type=range]').forEach(s => {
+    existentes[s.dataset.act] = parseInt(s.value);
+  });
+  const mismasActs = seleccionadas.length === Object.keys(existentes).length &&
+    seleccionadas.every(id => id in existentes);
+
+  let valores = {};
+  if (!mismasActs) {
+    const otras = seleccionadas.filter(id => id !== 'caminar');
+    const n = otras.length;
+    const baseWalk = n === 0 ? 100 : Math.max(50, 100 - n * 20);
+    const porOtra  = n > 0 ? Math.floor((100 - baseWalk) / n) : 0;
+    valores['caminar'] = 100 - porOtra * n;
+    otras.forEach(id => valores[id] = porOtra);
+    const suma = Object.values(valores).reduce((a,b)=>a+b,0);
+    valores['caminar'] += (100 - suma);
+  } else {
+    seleccionadas.forEach(id => valores[id] = existentes[id]);
+  }
+
+  slidersDiv.innerHTML = seleccionadas.map(id => {
+    const cfg = ACTIVIDADES_CONFIG[id];
+    const pct = valores[id] ?? 0;
+    return `<div class="reparto-row">
+      <span class="reparto-label">${cfg.emoji} ${cfg.nombre}</span>
+      <input type="range" class="reparto-slider" data-act="${id}"
+        min="${id==='caminar'?20:0}" max="${id==='caminar'?100:80}" step="5" value="${pct}"
+        oninput="sincronizarReparto('${id}', this.value)">
+      <span class="reparto-pct" id="pct-${id}">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  actualizarSumaReparto();
+}
+
+/** Sincroniza un slider y ajusta los demás para mantener suma=100 */
+function sincronizarReparto(actModificada, nuevoValor) {
+  const seleccionadas = Object.keys(ACTIVIDADES_CONFIG)
+    .filter(id => id === 'caminar' || document.getElementById('act-'+id)?.checked);
+
+  const val = parseInt(nuevoValor);
+  const otras = seleccionadas.filter(id => id !== actModificada);
+  const restante = 100 - val;
+
+  // Distribuir el restante proporcionalmente entre las otras
+  const totalOtras = otras.reduce((sum, id) => {
+    const sl = document.querySelector(`input[data-act="${id}"]`);
+    return sum + (sl ? parseInt(sl.value) : 0);
+  }, 0);
+
+  otras.forEach(id => {
+    const sl = document.querySelector(`input[data-act="${id}"]`);
+    if (!sl) return;
+    const minV = id === 'caminar' ? 20 : 0;
+    let nuevo = totalOtras > 0
+      ? Math.round((parseInt(sl.value) / totalOtras) * restante)
+      : Math.round(restante / otras.length);
+    nuevo = Math.max(minV, Math.min(100, nuevo));
+    sl.value = nuevo;
+    const lbl = document.getElementById('pct-'+id);
+    if (lbl) lbl.textContent = nuevo + '%';
+  });
+
+  document.getElementById('pct-'+actModificada).textContent = val + '%';
+  actualizarSumaReparto();
+}
+
+function actualizarSumaReparto() {
+  const sliders = document.querySelectorAll('#repartoSliders input[type=range]');
+  const total   = Array.from(sliders).reduce((s,sl) => s + parseInt(sl.value), 0);
+  const badge   = document.getElementById('repartoSuma');
+  const errDiv  = document.getElementById('repartoError');
+  badge.textContent = 'Total: ' + total + '%';
+  const ok = total === 100;
+  badge.style.background = ok ? '#dcfce7' : '#fef2f2';
+  badge.style.color       = ok ? '#15803d' : '#dc2626';
+  errDiv && errDiv.classList.toggle('hidden', ok);
+}
+
+/** Lee el reparto actual de los sliders */
+function leerReparto() {
+  const seleccionadas = Object.keys(ACTIVIDADES_CONFIG).filter(id => actividadesActivas.has(id));
+  return seleccionadas.map(id => {
+    const sl = document.querySelector(`input[data-act="${id}"]`);
+    const pct = sl ? parseInt(sl.value) : (id === 'caminar' ? 100 : 0);
+    return { id, pct };
+  }).filter(a => a.pct > 0);
+}
+
+/** Construye la tabla de progresión de una actividad */
+function buildTablaActividad(cfg, pct, dias) {
+  const headerColor = ACT_COLORS[cfg.id];
+  const bgs = headerColor ? `style="background:rgb(${headerColor.bg.join(',')});border:1px solid rgb(${headerColor.border.join(',')})"` : '';
+  const rows = cfg.progresion.map((s,i) => {
+    const diasEfectivos = Math.max(1, Math.round((pct/100) * s.dias));
+    return `<tr>
+      <td data-label="Semana"><strong>Semana ${s.sem}</strong></td>
+      <td data-label="Minutos">${s.min} min</td>
+      <td data-label="Intensidad">${s.ritmo}</td>
+      <td data-label="Equiv./Distancia">${s.equiv}</td>
+      <td data-label="Días/sem">${diasEfectivos} día${diasEfectivos!==1?'s':''}/sem</td>
+    </tr>`;
+  }).join('');
+
+  const consejos = cfg.consejos.map(c =>
+    `<li class="flex gap-2 text-sm"><span class="flex-shrink-0 mt-0.5">•</span><span>${c}</span></li>`
+  ).join('');
+
+  return `
+    <div class="mb-7">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-2xl">${cfg.emoji}</span>
+        <div>
+          <h3 class="font-display text-xl text-forest-800">${cfg.nombre}
+            <span class="ml-2 badge text-xs" style="background:rgb(${(ACT_COLORS[cfg.id]?.bg||[220,252,231]).join(',')});color:rgb(${(ACT_COLORS[cfg.id]?.tc||[22,101,52]).join(',')})">
+              MET ${cfg.met} · ${pct}% del plan
+            </span>
+          </h3>
+        </div>
+      </div>
+      <div class="table-wrap mb-3">
+        <table class="data-table">
+          <thead><tr><th>Semana</th><th>Minutos/sesión</th><th>Intensidad / Ritmo</th><th>Equiv. / Distancia</th><th>Días/sem</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <ul class="space-y-1 text-gray-600 pl-2">${consejos}</ul>
+    </div>`;
+}
+
+/** Genera la distribución semanal dinámica según las actividades y sus porcentajes */
+function buildDistribucionSemanal(acts) {
+  // Asignar días de la semana a las actividades según reparto
+  const diasNombre = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  // Plantilla base: 6 días activos + 1 descanso (Dom)
+  // Distribuir slots 0–5 según porcentajes
+  const slots = [0,1,2,3,4,5]; // índices días activos
+  const totalPct = acts.reduce((s,a)=>s+a.pct,0);
+  const asignaciones = []; // {diaIdx, actId}
+
+  let cursor = 0;
+  acts.forEach((act, ai) => {
+    const numDias = Math.round((act.pct / totalPct) * 6);
+    for (let d = 0; d < numDias && cursor < 6; d++, cursor++) {
+      asignaciones[cursor] = act.id;
+    }
+  });
+  // Rellenar huecos con caminar
+  for (let i=0; i<6; i++) if (!asignaciones[i]) asignaciones[i] = 'caminar';
+
+  // Construir 7 píldoras
+  const pildoras = diasNombre.map((dia, i) => {
+    if (i === 6) {
+      return `<div class="border-2 rounded-xl p-2 text-center text-xs font-semibold bg-gray-50 border-gray-300 text-gray-600"><div class="font-bold mb-1">${dia}</div><div>Descanso</div></div>`;
+    }
+    const actId  = asignaciones[i] || 'caminar';
+    const cfg    = ACTIVIDADES_CONFIG[actId];
+    const colors = ACT_COLORS[actId]?.pill || 'bg-green-100 border-green-400 text-green-800';
+    // Añadir fuerza en días alternos (lun, mié, vie → índices 0, 2, 4)
+    const fuerza = [0,2,4].includes(i) ? ' + Fuerza' : '';
+    return `<div class="border-2 rounded-xl p-2 text-center text-xs font-semibold ${colors}"><div class="font-bold mb-1">${dia}</div><div>${cfg.emoji} ${cfg.nombre.split('/')[0]}${fuerza}</div></div>`;
+  });
+
+  return `
+    <h3 class="font-display text-xl text-forest-800 mb-3">📆 Distribución semanal</h3>
+    <div class="week-grid mb-7">${pildoras.join('')}</div>`;
+}
+
+// ============================================================
+// INICIALIZACIÓN: wire eventos del grid de actividades
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  const grid = document.getElementById('actividadesGrid');
+  if (!grid) return;
+  grid.addEventListener('click', function(e) {
+    const card = e.target.closest('[data-act]');
+    if (!card) return;
+    const id = card.dataset.act;
+    if (id && id !== 'caminar') {
+      toggleActividad(id);
+    }
+  });
+});
 
 setupPWA();
 </script>
