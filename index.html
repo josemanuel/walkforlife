@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WalkForLife</title>
+<!--
+  Este archivo existe solo porque GitHub Pages (y la mayoría de hostings)
+  buscan "index.html" como página de entrada por defecto.
+
+  Apunta SIEMPRE a la app real. Si alguna vez cambias el nombre del archivo
+  principal, solo tienes que actualizar la constante APP_URL aquí abajo —
+  todos los demás archivos (Manual, Recetas) enlazan a "index.html" y no
+  necesitan tocarse nunca.
+-->
+<meta http-equiv="refresh" content="0; url=WalkForLife.html">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #052e16 0%, #166534 40%, #15803d 70%, #1a6b4a 100%);
+    color: white; text-align: center;
+  }
+  .box { padding: 2rem; }
+  .spinner {
+    width: 36px; height: 36px; margin: 0 auto 1.25rem;
+    border: 4px solid rgba(255,255,255,0.25); border-top-color: white;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  a { color: #bbf7d0; text-decoration: underline; }
+  p { opacity: 0.9; font-size: 0.95rem; }
+</style>
+<script>
+  // Redirección inmediata por JS (más rápida que esperar al meta refresh,
+  // y usa replace() para no dejar esta página en el historial del navegador).
+  window.location.replace('WalkForLife.html');
+</script>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <p>Cargando WalkForLife…</p>
+    <p><a href="WalkForLife.html">Pulsa aquí si no se abre automáticamente</a></p>
+  </div>
+</body>
+</html>

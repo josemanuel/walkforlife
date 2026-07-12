@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetario – WalkForLife</title>
+<meta name="description" content="Recetas completas de todos los platos del planificador de menús de WalkForLife.">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display: ['"DM Serif Display"','serif'], body: ['"DM Sans"','sans-serif'] },
+      colors: {
+        forest: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',
+                  500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16' }
+      }
+    }
+  }
+}
+</script>
+<style>
+* { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+.font-display { font-family: 'DM Serif Display', serif; }
+body { background: #f8faf7; min-height: 100vh; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0; opacity:0.4;
+}
+.hero-gradient {
+  background: linear-gradient(135deg, #052e16 0%, #166534 40%, #15803d 70%, #1a6b4a 100%);
+  position: relative; overflow: hidden;
+}
+.hero-gradient::after {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(74,222,128,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(34,197,94,0.1) 0%, transparent 50%);
+  pointer-events:none;
+}
+.card { background:white; border-radius:1.5rem; border:1px solid rgba(22,101,52,0.08); box-shadow:0 4px 24px rgba(5,46,22,0.06),0 1px 4px rgba(5,46,22,0.04); }
+.badge { display:inline-flex; align-items:center; gap:0.375rem; padding:0.375rem 0.875rem; border-radius:9999px; font-size:0.8125rem; font-weight:600; }
+.badge-green { background:#dcfce7; color:#15803d; }
+.badge-orange { background:#fff7ed; color:#c2410c; }
+.badge-blue { background:#eff6ff; color:#1d4ed8; }
+.toc-link { display:block; padding:0.4rem 0.75rem; border-radius:0.6rem; font-size:0.82rem; color:#4b5d50; text-decoration:none; transition: all .15s; }
+.toc-link:hover { background:#f0fdf4; color:#166534; }
+.toc-cat { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:#86a591; font-weight:700; padding:0.6rem 0.75rem 0.2rem; }
+.recipe-card { border:1px solid #dcfce7; border-radius:1.25rem; padding:1.5rem; background:#fdfffd; scroll-margin-top:90px; }
+.recipe-meta { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.75rem; color:#4b7a51; background:#f0fdf4; border-radius:9999px; padding:0.25rem 0.7rem; font-weight:600; }
+.ing-list { list-style:none; padding:0; margin:0; }
+.ing-list li { display:flex; gap:0.5rem; padding:0.3rem 0; border-bottom:1px dashed #e5f3e8; font-size:0.875rem; color:#374151; }
+.ing-list li:last-child { border-bottom:none; }
+.ing-list li::before { content:'•'; color:#86efac; font-weight:900; }
+.step-list { list-style:none; padding:0; margin:0; counter-reset: step; }
+.step-list li { display:flex; gap:0.75rem; padding:0.5rem 0; counter-increment: step; font-size:0.9rem; color:#374151; line-height:1.5; }
+.step-list li::before {
+  content: counter(step); flex-shrink:0; width:1.6rem; height:1.6rem; border-radius:50%;
+  background:linear-gradient(135deg,#166534,#15803d); color:white; font-weight:700; font-size:0.8rem;
+  display:flex; align-items:center; justify-content:center; margin-top:0.05rem;
+}
+.tip-box { background:#fffbeb; border:1px solid #fde68a; border-radius:0.75rem; padding:0.75rem 1rem; font-size:0.82rem; color:#92400e; margin-top:1rem; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#f8faf7; }
+::-webkit-scrollbar-thumb { background:#86efac; border-radius:9999px; }
+#back-to-app { position:fixed; top:1rem; right:1rem; z-index:50; }
+@media print { #toc-sidebar, #back-to-app, #mobile-toc { display:none !important; } .recipe-card { box-shadow:none; } }
+</style>
+</head>
+<body class="relative">
+
+<a id="back-to-app" href="index.html" class="card px-4 py-2 text-sm font-semibold text-forest-800 shadow-lg">← Volver a la app</a>
+
+<div class="hero-gradient relative z-10">
+  <div class="relative z-10 max-w-6xl mx-auto px-4 py-12 text-center text-white">
+    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-medium mb-5">
+      <span>🍳</span><span>Recetario</span>
+    </div>
+    <h1 class="font-display text-5xl md:text-6xl mb-3 leading-tight">Walk<span class="text-green-300">ForLife</span></h1>
+    <p class="text-green-100 text-lg max-w-2xl mx-auto leading-relaxed">
+      Todas las recetas de los platos que aparecen en tu planificador de menús, con ingredientes, pasos y trucos.
+    </p>
+  </div>
+</div>
+
+<div class="relative z-10 max-w-6xl mx-auto px-4 py-8 lg:flex lg:gap-8">
+
+  <details id="mobile-toc" class="lg:hidden card p-4 mb-6">
+    <summary class="font-display text-lg text-forest-900 cursor-pointer">📑 Índice de recetas</summary>
+    <nav class="mt-3 space-y-0.5">
+      <p class="toc-cat">🍳 Huevos y tortillas</p>
+      <a class="toc-link" href="#huevos-revueltos">Huevos revueltos</a>
+      <a class="toc-link" href="#tortilla-francesa">Tortilla francesa</a>
+      <a class="toc-link" href="#tortilla-claras">Tortilla de claras</a>
+      <a class="toc-link" href="#tortilla-calabacin">Tortilla de calabacín</a>
+      <a class="toc-link" href="#tortilla-patata">Tortilla de patata</a>
+      <a class="toc-link" href="#revuelto-champinones">Revuelto de champiñones</a>
+      <p class="toc-cat">🫘 Legumbres y cereales</p>
+      <a class="toc-link" href="#lentejas-estofadas">Lentejas estofadas</a>
+      <a class="toc-link" href="#garbanzos-espinacas">Garbanzos con espinacas</a>
+      <a class="toc-link" href="#arroz-gambas">Arroz con gambas y verduras</a>
+      <a class="toc-link" href="#arroz-tres-delicias">Arroz tres delicias</a>
+      <a class="toc-link" href="#paella-verduras-marisco">Paella de verduras y marisco</a>
+      <a class="toc-link" href="#paella-mixta">Paella mixta</a>
+      <p class="toc-cat">🐟 Pescados, carnes y aves</p>
+      <a class="toc-link" href="#pescado-horno">Pescado al horno</a>
+      <a class="toc-link" href="#pollo-curry">Pollo al curry suave</a>
+      <a class="toc-link" href="#ternera-horno-patata">Ternera al horno con patata</a>
+      <a class="toc-link" href="#hamburguesa-pavo">Hamburguesa de pavo casera</a>
+      <a class="toc-link" href="#fajitas-pollo">Fajitas de pollo</a>
+      <a class="toc-link" href="#claras-espinacas">Claras de huevo con espinacas</a>
+      <p class="toc-cat">🍲 Cremas y sopas</p>
+      <a class="toc-link" href="#crema-calabaza">Crema de calabaza</a>
+      <a class="toc-link" href="#crema-calabacin">Crema de calabacín</a>
+      <a class="toc-link" href="#crema-verduras">Crema de verduras</a>
+      <a class="toc-link" href="#sopa-verduras">Sopa de verduras</a>
+      <p class="toc-cat">🌍 Platos rápidos e internacionales</p>
+      <a class="toc-link" href="#wrap-pollo">Wrap de pollo</a>
+      <a class="toc-link" href="#pizza-casera">Pizza casera integral</a>
+      <a class="toc-link" href="#sushi-casero">Sushi casero</a>
+      <a class="toc-link" href="#ensalada-quinoa">Ensalada de quinoa</a>
+      <a class="toc-link" href="#cocido-ligero">Cocido ligero</a>
+      <p class="toc-cat">🥣 Desayunos especiales</p>
+      <a class="toc-link" href="#porridge-avena">Porridge de avena</a>
+      <a class="toc-link" href="#tostadas-francesas">Tostadas francesas</a>
+      <a class="toc-link" href="#batidos">Batidos y smoothies</a>
+      <p class="toc-cat">🫙 Extras</p>
+      <a class="toc-link" href="#hummus-casero">Hummus casero</a>
+    </nav>
+  </details>
+
+  <aside id="toc-sidebar" class="hidden lg:block lg:w-64 flex-shrink-0">
+    <div class="card p-4 sticky top-6">
+      <p class="font-display text-lg text-forest-900 mb-1 px-2">📑 Índice</p>
+      <nav class="text-sm" style="max-height:85vh; overflow-y:auto;">
+        <p class="toc-cat">🍳 Huevos y tortillas</p>
+        <a class="toc-link" href="#huevos-revueltos">Huevos revueltos</a>
+        <a class="toc-link" href="#tortilla-francesa">Tortilla francesa</a>
+        <a class="toc-link" href="#tortilla-claras">Tortilla de claras</a>
+        <a class="toc-link" href="#tortilla-calabacin">Tortilla de calabacín</a>
+        <a class="toc-link" href="#tortilla-patata">Tortilla de patata</a>
+        <a class="toc-link" href="#revuelto-champinones">Revuelto de champiñones</a>
+        <p class="toc-cat">🫘 Legumbres y cereales</p>
+        <a class="toc-link" href="#lentejas-estofadas">Lentejas estofadas</a>
+        <a class="toc-link" href="#garbanzos-espinacas">Garbanzos con espinacas</a>
+        <a class="toc-link" href="#arroz-gambas">Arroz con gambas y verduras</a>
+        <a class="toc-link" href="#arroz-tres-delicias">Arroz tres delicias</a>
+        <a class="toc-link" href="#paella-verduras-marisco">Paella de verduras y marisco</a>
+        <a class="toc-link" href="#paella-mixta">Paella mixta</a>
+        <p class="toc-cat">🐟 Pescados, carnes y aves</p>
+        <a class="toc-link" href="#pescado-horno">Pescado al horno</a>
+        <a class="toc-link" href="#pollo-curry">Pollo al curry suave</a>
+        <a class="toc-link" href="#ternera-horno-patata">Ternera al horno con patata</a>
+        <a class="toc-link" href="#hamburguesa-pavo">Hamburguesa de pavo casera</a>
+        <a class="toc-link" href="#fajitas-pollo">Fajitas de pollo</a>
+        <a class="toc-link" href="#claras-espinacas">Claras de huevo con espinacas</a>
+        <p class="toc-cat">🍲 Cremas y sopas</p>
+        <a class="toc-link" href="#crema-calabaza">Crema de calabaza</a>
+        <a class="toc-link" href="#crema-calabacin">Crema de calabacín</a>
+        <a class="toc-link" href="#crema-verduras">Crema de verduras</a>
+        <a class="toc-link" href="#sopa-verduras">Sopa de verduras</a>
+        <p class="toc-cat">🌍 Platos rápidos e internacionales</p>
+        <a class="toc-link" href="#wrap-pollo">Wrap de pollo</a>
+        <a class="toc-link" href="#pizza-casera">Pizza casera integral</a>
+        <a class="toc-link" href="#sushi-casero">Sushi casero</a>
+        <a class="toc-link" href="#ensalada-quinoa">Ensalada de quinoa</a>
+        <a class="toc-link" href="#cocido-ligero">Cocido ligero</a>
+        <p class="toc-cat">🥣 Desayunos especiales</p>
+        <a class="toc-link" href="#porridge-avena">Porridge de avena</a>
+        <a class="toc-link" href="#tostadas-francesas">Tostadas francesas</a>
+        <a class="toc-link" href="#batidos">Batidos y smoothies</a>
+        <p class="toc-cat">🫙 Extras</p>
+        <a class="toc-link" href="#hummus-casero">Hummus casero</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0 space-y-6">
+    <div class="card p-5 md:p-6">
+      <p class="text-sm text-gray-600">💡 Desde el planificador semanal de la app, los platos que tienen receta aparecen subrayados con el icono 🍳 — pulsa sobre ellos y se abrirá directamente aquí, en la receta correspondiente.</p>
+    </div>
+
+    <!-- CATEGORÍA: HUEVOS Y TORTILLAS -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🍳 Huevos y tortillas</h2>
+      <div class="space-y-6">
+
+        <article id="huevos-revueltos" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Huevos revueltos</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 8 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>2 huevos</li><li>50 g espinacas frescas (opcional)</li><li>30 g jamón cocido (opcional)</li>
+                <li>5 g aceite de oliva virgen extra</li><li>Sal y pimienta al gusto</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Bate los huevos en un bol con una pizca de sal hasta que estén homogéneos.</li>
+                <li>Si usas espinacas, saltéalas 1-2 min en la sartén con el aceite hasta que reduzcan.</li>
+                <li>Si usas jamón, añádelo troceado y saltea 30 segundos más.</li>
+                <li>Vierte el huevo batido y baja el fuego a medio-bajo.</li>
+                <li>Remueve sin parar formando pliegues; retira del fuego cuando aún estén ligeramente líquidos.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> retira la sartén del fuego un poco antes de que cuajen del todo — el calor residual termina la cocción y evita que queden secos.</div>
+        </article>
+
+        <article id="tortilla-francesa" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Tortilla francesa</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 5 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>2 huevos</li><li>Sal al gusto</li><li>5 g aceite de oliva</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Bate los huevos con sal hasta que estén bien integrados.</li>
+                <li>Calienta el aceite en una sartén antiadherente a fuego medio.</li>
+                <li>Vierte el huevo batido y deja cuajar el borde, 1 minuto.</li>
+                <li>Dobla por la mitad con una espátula.</li>
+                <li>Cocina 30 segundos más por cada lado y sirve caliente.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> no la dejes más de 2 minutos en total en la sartén — así queda jugosa por dentro.</div>
+        </article>
+
+        <article id="tortilla-claras" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Tortilla de claras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 6 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>3–4 claras de huevo</li><li>50 g espinacas (opcional)</li><li>Sal y pimienta</li><li>Spray o pizca de aceite</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Separa las claras de las yemas y bátelas con sal.</li>
+                <li>Calienta una sartén antiadherente con un poco de aceite.</li>
+                <li>Vierte las claras y cocina a fuego bajo 2-3 min sin remover.</li>
+                <li>Cuando cuaje por debajo, dobla por la mitad.</li>
+                <li>Cocina 1 minuto más y sirve.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> las claras se pegan más que el huevo entero — usa fuego bajo y sartén bien antiadherente.</div>
+        </article>
+
+        <article id="tortilla-calabacin" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Tortilla de calabacín</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 18 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>2 huevos</li><li>100 g calabacín</li><li>½ cebolla (opcional)</li><li>5 g AOVE</li><li>Sal</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Corta el calabacín en láminas finas.</li>
+                <li>Saltea en la sartén con aceite 5-6 min hasta que esté tierno y dorado.</li>
+                <li>Bate los huevos con sal y mézclalos con el calabacín salteado.</li>
+                <li>Vierte la mezcla en la sartén y cuaja a fuego medio-bajo 3-4 min.</li>
+                <li>Dale la vuelta con ayuda de un plato y cocina 3-4 min más por el otro lado.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> deja sudar el calabacín con sal 10 min antes y sécalo con papel — suelta menos agua al cocinar.</div>
+        </article>
+
+        <article id="tortilla-patata" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Tortilla de patata</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 35 min</span><span class="recipe-meta">👤 2-3 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>2 patatas medianas (~300 g)</li><li>3 huevos</li><li>½ cebolla</li><li>AOVE para pochar</li><li>Sal</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Pela y corta las patatas en láminas finas.</li>
+                <li>Pocha en abundante aceite a fuego medio-bajo 15-20 min junto a la cebolla, hasta que estén blandas (no doradas).</li>
+                <li>Escurre bien el aceite.</li>
+                <li>Bate los huevos con sal y mezcla con las patatas.</li>
+                <li>Vierte en una sartén pequeña con una cucharada de aceite y cuaja 3-4 min por cada lado.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> el secreto está en pochar la patata despacio, no fritarla — así queda cremosa por dentro.</div>
+        </article>
+
+        <article id="revuelto-champinones" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Revuelto de champiñones</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 12 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>150 g champiñones laminados</li><li>2 huevos</li><li>1 diente de ajo</li><li>AOVE</li><li>Perejil y sal</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Saltea el ajo picado en aceite 30 segundos.</li>
+                <li>Añade los champiñones y saltea 5-6 min a fuego medio-alto hasta que se doren.</li>
+                <li>Baja el fuego y añade los huevos batidos con sal.</li>
+                <li>Remueve sin parar hasta que cuajen ligeramente.</li>
+                <li>Espolvorea perejil y sirve enseguida.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> limpia los champiñones con un paño húmedo en vez de lavarlos bajo el grifo — así no absorben agua.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: LEGUMBRES Y CEREALES -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🫘 Legumbres y cereales</h2>
+      <div class="space-y-6">
+
+        <article id="lentejas-estofadas" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Lentejas estofadas</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 35 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>200 g lentejas (en remojo si son secas, o de bote)</li><li>1 zanahoria</li><li>½ cebolla</li>
+                <li>½ pimiento</li><li>1 diente de ajo</li><li>1 tomate maduro</li><li>AOVE, pimentón, laurel, sal</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Pica todas las verduras finas.</li>
+                <li>Sofríe en una olla con aceite 5-6 min.</li>
+                <li>Añade el tomate troceado y el pimentón; cocina 2 min más.</li>
+                <li>Añade las lentejas y cubre con agua o caldo (doble volumen).</li>
+                <li>Añade laurel y sal; cuece 25-30 min (10-15 si son de bote) hasta que estén tiernas.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Variante con chorizo:</strong> añade 20 g de chorizo en rodajas finas al sofrito — aporta mucho sabor sin necesidad de gran cantidad.</div>
+        </article>
+
+        <article id="garbanzos-espinacas" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Garbanzos con espinacas</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 15 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>200 g garbanzos cocidos</li><li>100 g espinacas frescas</li><li>1 diente de ajo</li><li>AOVE, comino, sal</li><li>Pimentón (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe el ajo laminado en aceite hasta que dore ligeramente.</li>
+                <li>Añade las espinacas y saltea 2-3 min hasta que reduzcan.</li>
+                <li>Incorpora los garbanzos escurridos.</li>
+                <li>Añade comino y sal.</li>
+                <li>Saltea todo junto 4-5 min, añadiendo un par de cucharadas de agua si lo necesita.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> un toque de pimentón ahumado al final le da un sabor muy característico de la cocina andaluza.</div>
+        </article>
+
+        <article id="arroz-gambas" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Arroz integral con gambas y verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 30 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>80 g arroz integral</li><li>100 g gambas peladas</li><li>100 g verduras variadas</li><li>1 diente de ajo</li><li>AOVE, caldo o agua, sal</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Cuece el arroz integral en agua o caldo según el tiempo del paquete (25-30 min).</li>
+                <li>En una sartén aparte, saltea el ajo y las verduras troceadas 5 min.</li>
+                <li>Añade las gambas y saltea 2-3 min más hasta que cambien de color.</li>
+                <li>Mezcla con el arroz cocido.</li>
+                <li>Saltea todo junto 2 min para integrar sabores.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> no sobrecocines las gambas — 2-3 minutos es suficiente, si no quedan gomosas.</div>
+        </article>
+
+        <article id="arroz-tres-delicias" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Arroz tres delicias casero</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 20 min</span><span class="recipe-meta">👤 1-2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>150 g arroz (preferiblemente del día anterior)</li><li>1 huevo</li><li>50 g guisantes</li><li>50 g zanahoria en cubos</li><li>30 g jamón cocido en cubos</li><li>Salsa de soja, aceite</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Bate el huevo y cuájalo en tortilla fina; córtalo en tiras.</li>
+                <li>Saltea la zanahoria y los guisantes 3-4 min.</li>
+                <li>Añade el jamón y el arroz; saltea a fuego fuerte 3-4 min separando los granos.</li>
+                <li>Incorpora el huevo en tiras y un chorrito de soja.</li>
+                <li>Mezcla bien y sirve caliente.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> usar arroz frío (de un día para otro) es el secreto para que no quede pastoso al saltear.</div>
+        </article>
+
+        <article id="paella-verduras-marisco" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Paella de verduras y marisco</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 40 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>150 g arroz bomba o redondo</li><li>200 g mezcla de marisco (gambas, mejillones, calamar)</li>
+                <li>150 g verduras (judía verde, pimiento rojo, alcachofa)</li><li>1 tomate maduro rallado</li>
+                <li>Azafrán o colorante alimentario</li><li>AOVE</li><li>Caldo de pescado (doble volumen que el arroz)</li><li>Sal</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe las verduras troceadas en la paellera con aceite 6-8 min.</li>
+                <li>Añade el tomate rallado y sofríe 2 min más.</li>
+                <li>Incorpora el marisco y saltea 1-2 min.</li>
+                <li>Añade el arroz y remueve para que se impregne.</li>
+                <li>Vierte el caldo caliente con el azafrán y sal; cocina a fuego fuerte 10 min sin remover, luego medio-bajo 8-10 min más.</li>
+                <li>Deja reposar 5 min tapada con un paño antes de servir.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> no remuevas el arroz una vez añadido el caldo — así se forma el socarrat (la costra tostada del fondo) sin que se pegue.</div>
+        </article>
+
+        <article id="paella-mixta" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Paella mixta</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 40 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>150 g arroz bomba</li><li>150 g pollo troceado</li><li>100 g marisco variado</li>
+                <li>100 g judía verde</li><li>1 tomate rallado</li><li>Azafrán, AOVE, caldo, sal</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Dora el pollo troceado en la paellera con aceite 6-8 min; retira y reserva.</li>
+                <li>En el mismo aceite, sofríe la judía verde 4-5 min.</li>
+                <li>Añade el tomate rallado y sofríe 2 min.</li>
+                <li>Devuelve el pollo, añade el marisco y el arroz, remueve para impregnar.</li>
+                <li>Vierte el caldo caliente con azafrán y sal; cocina igual que la paella de marisco (10 min fuerte + 8-10 min medio-bajo).</li>
+                <li>Reposa 5 min antes de servir.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> dora bien el pollo al principio — ese fondo tostado es la base del sabor de toda la paella.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: PESCADOS, CARNES Y AVES -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🐟 Pescados, carnes y aves</h2>
+      <div class="space-y-6">
+
+        <article id="pescado-horno" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Pescado al horno con verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 25 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>1 lomo de pescado blanco (dorada, merluza, ~150-200 g)</li>
+                <li>200 g verduras variadas (pimiento, calabacín, cebolla, tomate cherry)</li>
+                <li>AOVE, limón, sal, hierbas provenzales</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Precalienta el horno a 200 °C.</li>
+                <li>Corta las verduras en trozos similares; colócalas en una bandeja con aceite y sal.</li>
+                <li>Hornea las verduras 10 min antes de añadir el pescado.</li>
+                <li>Coloca el pescado sobre las verduras; riega con aceite, limón, sal y hierbas.</li>
+                <li>Hornea 12-15 min más hasta que el pescado esté opaco y se separe fácil con un tenedor.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> el pescado está en su punto cuando la carne se separa en láminas con facilidad — evita pasarte de tiempo o quedará seco.</div>
+        </article>
+
+        <article id="pollo-curry" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Pollo al curry suave</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 25 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>150 g pechuga de pollo en trozos</li><li>150 g verduras (pimiento, calabacín, zanahoria)</li>
+                <li>½ cebolla</li><li>1 diente de ajo</li><li>1-2 cdtas curry en polvo</li>
+                <li>100 ml leche de coco light o caldo</li><li>AOVE, sal</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe la cebolla y el ajo picados en aceite 3-4 min.</li>
+                <li>Añade el pollo y sella 4-5 min hasta que esté dorado por fuera.</li>
+                <li>Incorpora las verduras troceadas y saltea 3-4 min.</li>
+                <li>Añade el curry en polvo y remueve 30 seg para que tueste.</li>
+                <li>Vierte la leche de coco o caldo y cocina a fuego medio 8-10 min hasta que el pollo esté cocido.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> tostar el curry en polvo unos segundos en el sofrito (antes del líquido) potencia mucho su aroma.</div>
+        </article>
+
+        <article id="ternera-horno-patata" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Ternera al horno con patata asada</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 35 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>150 g ternera magra (redondo o babilla)</li><li>150 g patata</li><li>AOVE, ajo</li><li>Romero o tomillo</li><li>Sal, pimienta</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Precalienta el horno a 200 °C.</li>
+                <li>Corta la patata en cuñas; colócala en una bandeja con aceite, sal y hierbas. Hornea 15 min.</li>
+                <li>Sella la ternera en una sartén con aceite 1-2 min por cada lado a fuego fuerte.</li>
+                <li>Añade la carne a la bandeja con las patatas y hornea 10-15 min más según el punto deseado.</li>
+                <li>Deja reposar la carne 5 min antes de cortar.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> dejar reposar la carne después del horno es clave — los jugos se redistribuyen y queda más tierna al cortarla.</div>
+        </article>
+
+        <article id="hamburguesa-pavo" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Hamburguesa de pavo casera</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 15 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>150 g carne picada de pavo</li><li>1 diente de ajo picado</li><li>Perejil, sal, pimienta</li><li>AOVE</li><li>Pan integral (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Mezcla la carne con el ajo, perejil, sal y pimienta, amasando ligeramente.</li>
+                <li>Forma una hamburguesa de grosor uniforme.</li>
+                <li>Calienta una sartén o plancha con aceite a fuego medio-alto.</li>
+                <li>Cocina 3-4 min por cada lado hasta que esté bien hecha por dentro.</li>
+                <li>Sirve sola con ensalada o en pan integral.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> haz un hueco con el pulgar en el centro antes de cocinarla — evita que se abombe y quede más uniforme.</div>
+        </article>
+
+        <article id="fajitas-pollo" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Fajitas de pollo con verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 20 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>120 g pechuga de pollo en tiras</li><li>100 g pimientos variados en tiras</li><li>½ cebolla en tiras</li>
+                <li>1 diente de ajo, comino, pimentón</li><li>AOVE, sal</li><li>1 tortilla de trigo integral</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Marina el pollo con sal, comino y pimentón mientras preparas las verduras.</li>
+                <li>Saltea el pollo en una sartén con aceite a fuego fuerte 4-5 min; retira y reserva.</li>
+                <li>En la misma sartén, saltea la cebolla y los pimientos 4-5 min hasta que estén tiernos con un punto crujiente.</li>
+                <li>Junta todo, calienta 1 min más.</li>
+                <li>Sirve caliente con la tortilla aparte para montar.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> cocina el pollo y las verduras por separado a fuego fuerte — si los mezclas desde el principio, el pollo suelta agua y las verduras quedan blandas.</div>
+        </article>
+
+        <article id="claras-espinacas" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Claras de huevo con espinacas</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 10 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>4 claras de huevo</li><li>100 g espinacas frescas</li><li>1 diente de ajo</li><li>AOVE, sal, pimienta</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Saltea el ajo picado en aceite 30 segundos.</li>
+                <li>Añade las espinacas y saltea 2-3 min hasta que reduzcan.</li>
+                <li>Vierte las claras batidas con sal y pimienta.</li>
+                <li>Remueve a fuego medio-bajo hasta que cuajen (1-2 min).</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> bate las claras solo hasta que estén homogéneas — batirlas de más les da una textura más gomosa al cocinar.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: CREMAS Y SOPAS -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🍲 Cremas y sopas</h2>
+      <div class="space-y-6">
+
+        <article id="crema-calabaza" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Crema de calabaza</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 30 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>300 g calabaza troceada</li><li>½ cebolla</li><li>1 patata pequeña</li><li>Caldo de verduras</li><li>AOVE, sal, pimienta</li><li>Nuez moscada (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe la cebolla picada en una olla con aceite 3-4 min.</li>
+                <li>Añade la calabaza y la patata troceadas.</li>
+                <li>Cubre con caldo y cuece 20-25 min hasta que estén muy tiernas.</li>
+                <li>Tritura con batidora hasta obtener una crema lisa.</li>
+                <li>Ajusta de sal y pimienta; añade nuez moscada si quieres.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> si la crema queda muy espesa, aclárala con un poco más de caldo caliente hasta la textura deseada.</div>
+        </article>
+
+        <article id="crema-calabacin" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Crema de calabacín</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 25 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>300 g calabacín troceado</li><li>½ cebolla</li><li>½ patata pequeña</li><li>Caldo de verduras</li><li>AOVE, sal, pimienta</li><li>Queso fresco o yogur (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe la cebolla en aceite 3-4 min.</li>
+                <li>Añade el calabacín y la patata.</li>
+                <li>Cubre con caldo y cuece 15-20 min hasta que estén tiernos.</li>
+                <li>Tritura hasta que quede una crema fina.</li>
+                <li>Añade sal, pimienta y un poco de queso fresco o yogur si quieres mayor cremosidad.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> no peles el calabacín — la piel aporta color verde intenso y fibra a la crema.</div>
+        </article>
+
+        <article id="crema-verduras" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Crema de verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 30 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>300 g verduras variadas (puerro, zanahoria, calabacín, patata)</li><li>Caldo de verduras</li><li>AOVE, sal, pimienta</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Trocea todas las verduras en tamaños similares.</li>
+                <li>Sofríe el puerro o cebolla 3-4 min en una olla con aceite.</li>
+                <li>Añade el resto de verduras y cubre con caldo.</li>
+                <li>Cuece 20-25 min hasta que estén muy tiernas.</li>
+                <li>Tritura hasta conseguir una textura fina; ajusta de sal y pimienta.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> es perfecta para aprovechar lo que tengas en la nevera — la proporción de patata determina lo espesa que quede.</div>
+        </article>
+
+        <article id="sopa-verduras" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Sopa de verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 30 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>300 g verduras variadas (zanahoria, puerro, apio, calabacín, judía verde)</li><li>Caldo o agua</li><li>AOVE, sal, laurel</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Sofríe ligeramente las verduras más duras (zanahoria, puerro) en una olla con aceite 4-5 min.</li>
+                <li>Añade el resto de verduras y cubre con agua o caldo.</li>
+                <li>Añade una hoja de laurel y sal.</li>
+                <li>Cuece a fuego medio 20-25 min hasta que todas las verduras estén tiernas (sin triturar).</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> a diferencia de la crema, en la sopa se dejan los trozos enteros — corta las verduras en tamaño similar para que se cocinen por igual.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: PLATOS RÁPIDOS E INTERNACIONALES -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🌍 Platos rápidos e internacionales</h2>
+      <div class="space-y-6">
+
+        <article id="wrap-pollo" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Wrap integral de pollo y verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 15 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>1 tortilla integral (~50 g)</li><li>100 g pechuga de pollo a la plancha</li><li>80 g verduras (lechuga, tomate, pimiento)</li><li>Salsa de yogur (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Cocina la pechuga a la plancha con sal y especias; córtala en tiras.</li>
+                <li>Calienta ligeramente la tortilla 20-30 seg por cada lado en una sartén seca.</li>
+                <li>Coloca las verduras y el pollo en el centro de la tortilla.</li>
+                <li>Añade salsa de yogur si quieres.</li>
+                <li>Enrolla bien apretado, doblando los extremos hacia dentro.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> calentar la tortilla evita que se rompa al enrollarla y mejora mucho la textura.</div>
+        </article>
+
+        <article id="pizza-casera" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Pizza casera integral de verduras</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 45 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>80 g harina integral, agua, levadura y sal (o base integral comprada)</li>
+                <li>50 g tomate triturado</li><li>Verduras variadas (champiñón, pimiento, cebolla, espinaca)</li>
+                <li>30 g mozzarella light</li><li>Orégano</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Si haces la masa: mezcla harina, agua, levadura y sal, amasa y deja reposar 30 min.</li>
+                <li>Extiende la masa fina; precalienta el horno al máximo (220-250 °C).</li>
+                <li>Extiende el tomate triturado sobre la base.</li>
+                <li>Reparte las verduras troceadas y el queso.</li>
+                <li>Hornea 10-15 min hasta que los bordes estén dorados y el queso fundido.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> si usas base comprada, precocínala 5 min sola antes de añadir los ingredientes — queda más crujiente y menos cruda en el centro.</div>
+        </article>
+
+        <article id="sushi-casero" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Sushi casero (maki sencillo)</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 40 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>150 g arroz para sushi</li><li>Vinagre de arroz</li><li>Alga nori</li>
+                <li>80 g salmón o atún fresco de calidad (o aguacate para versión vegetariana)</li><li>Pepino, aguacate</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Cuece el arroz y, aún caliente, mézclalo con un par de cucharadas de vinagre de arroz; deja enfriar.</li>
+                <li>Coloca un alga nori sobre una esterilla, extiende una capa fina de arroz dejando 2 cm libres en el borde superior.</li>
+                <li>Coloca las tiras de pescado, pepino y aguacate en el centro.</li>
+                <li>Enrolla con ayuda de la esterilla apretando bien.</li>
+                <li>Corta el rollo en 6-8 piezas con un cuchillo húmedo y muy afilado.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> humedece el cuchillo entre cada corte — evita que el arroz se pegue y los rollos queden limpios.</div>
+        </article>
+
+        <article id="ensalada-quinoa" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Ensalada de quinoa</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 20 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>80 g quinoa</li><li>100 g verduras variadas (tomate, pepino, pimiento)</li><li>30 g queso feta (opcional)</li><li>AOVE, limón, sal</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Lava bien la quinoa bajo el grifo (elimina su sabor amargo natural).</li>
+                <li>Cuece en agua con sal 12-15 min hasta que esté tierna y translúcida.</li>
+                <li>Escurre y deja enfriar.</li>
+                <li>Trocea las verduras en cubos pequeños.</li>
+                <li>Mezcla la quinoa fría con las verduras, el queso, aceite, limón y sal.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> enfriar bien la quinoa antes de mezclar evita que la ensalada quede pastosa.</div>
+        </article>
+
+        <article id="cocido-ligero" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Cocido ligero</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 60 min</span><span class="recipe-meta">👤 2 raciones</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>150 g garbanzos cocidos</li><li>100 g pollo o ternera magra</li><li>150 g verduras (col, zanahoria, patata, puerro)</li><li>Caldo o agua, sal, laurel</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>En una olla, cubre con agua la carne, los garbanzos y el laurel.</li>
+                <li>Cuece a fuego medio 30-40 min, retirando la espuma de la superficie.</li>
+                <li>Añade las verduras troceadas (empezando por las más duras) y cuece 20-25 min más.</li>
+                <li>Sirve el caldo aparte como primer plato y los garbanzos con la carne como segundo, o todo junto.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Versión ligera:</strong> retira la grasa visible de la carne antes de cocinar, y desgrasa el caldo dejándolo enfriar y retirando la capa de grasa solidificada.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: DESAYUNOS ESPECIALES -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🥣 Desayunos especiales</h2>
+      <div class="space-y-6">
+
+        <article id="porridge-avena" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Porridge de avena</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 8 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>40 g copos de avena</li><li>200 ml leche o bebida vegetal</li><li>1 fruta (manzana, plátano)</li><li>Canela, miel (opcional)</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Calienta la leche en un cazo a fuego medio sin que llegue a hervir fuerte.</li>
+                <li>Añade la avena y remueve.</li>
+                <li>Cocina 4-5 min removiendo de vez en cuando hasta que espese.</li>
+                <li>Añade la fruta troceada y canela.</li>
+                <li>Deja reposar 1-2 min; endulza con miel si quieres.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Versión overnight:</strong> déjalo reposar toda la noche en la nevera con leche fría — se hidrata solo, sin cocinar.</div>
+        </article>
+
+        <article id="tostadas-francesas" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Tostadas francesas integrales</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 12 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list"><li>2 rebanadas de pan integral</li><li>1 huevo</li><li>50 ml leche</li><li>Canela</li><li>AOVE o mantequilla light</li><li>Fruta para acompañar</li></ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Bate el huevo con la leche y la canela en un plato hondo.</li>
+                <li>Remoja cada rebanada por ambos lados, dejando que absorba bien sin deshacerse.</li>
+                <li>Calienta una sartén con un poco de aceite o mantequilla a fuego medio.</li>
+                <li>Cocina las tostadas 2-3 min por cada lado hasta que estén doradas.</li>
+                <li>Sirve con fruta troceada.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> usa pan de un día o dos (algo más seco) — absorbe mejor la mezcla sin desintegrarse.</div>
+        </article>
+
+        <article id="batidos" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Batidos y smoothies</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 5 min</span><span class="recipe-meta">👤 1 ración</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li><strong>Proteico:</strong> 200 ml leche o bebida vegetal, 30 g proteína en polvo, ½ plátano</li>
+                <li><strong>De frutas:</strong> 200 ml leche o yogur, frutas variadas (plátano, fresas, mango)</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Introduce todos los ingredientes en una batidora o vaso de batidora de mano.</li>
+                <li>Bate 30-60 seg hasta conseguir una textura homogénea y sin grumos.</li>
+                <li>Si queda muy espeso, añade un poco más de líquido.</li>
+                <li>Sirve inmediatamente bien frío.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> congela la fruta de antemano (plátano en rodajas, fresas) — el batido sale más cremoso y frío sin necesidad de añadir hielo.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- CATEGORÍA: EXTRAS -->
+    <section class="card p-6 md:p-8">
+      <h2 class="font-display text-2xl text-forest-900 mb-5">🫙 Extras</h2>
+      <div class="space-y-6">
+
+        <article id="hummus-casero" class="recipe-card">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="font-display text-xl text-forest-800">Hummus casero</h3>
+            <div class="flex gap-2"><span class="recipe-meta">⏱️ 10 min</span><span class="recipe-meta">👤 4 raciones (como snack)</span></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Ingredientes</p>
+              <ul class="ing-list">
+                <li>200 g garbanzos cocidos</li><li>1-2 cdas tahini (pasta de sésamo)</li><li>1 diente de ajo</li>
+                <li>Zumo de ½ limón</li><li>AOVE, comino, sal</li><li>Agua (si es necesario)</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-forest-700 text-sm mb-2">Preparación</p>
+              <ol class="step-list">
+                <li>Introduce los garbanzos, el tahini, el ajo, el limón, el comino y la sal en una batidora.</li>
+                <li>Tritura hasta conseguir una pasta.</li>
+                <li>Añade un chorrito de aceite y, si queda muy espeso, agua fría poco a poco hasta la textura deseada.</li>
+                <li>Prueba y ajusta de sal o limón.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="tip-box">💡 <strong>Truco:</strong> retirar la piel fina de los garbanzos (apretándolos entre los dedos) antes de triturar da un hummus mucho más cremoso.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- AVISO -->
+    <section class="card p-6 md:p-8" style="background:linear-gradient(135deg,#fffbeb,#fffdf5); border:2px solid #fde68a;">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">⚕️</span>
+        <p class="text-sm text-amber-700">Las cantidades de ingredientes son orientativas y pensadas para acompañar el objetivo calórico de tu plan WalkForLife. Ajusta las raciones a tu propio plan, y consulta a tu médico o dietista-nutricionista ante cualquier intolerancia, alergia o condición de salud específica.</p>
+      </div>
+    </section>
+
+    <footer class="text-center text-xs text-green-700 pb-10 pt-2">
+      <p>WalkForLife — Recetario</p>
+      <p class="mt-1">Dr. José Manuel Fernández Carreira · Col Nº 333307846</p>
+      <p class="mt-3"><a href="index.html" class="text-blue-600 underline">← Volver a la aplicación</a></p>
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Usuario – WalkForLife</title>
+<meta name="description" content="Manual completo de WalkForLife: guía de todas las funciones de la aplicación de pérdida de peso y vida saludable.">
+<link rel="icon" type="image/png" href="LogoWalkforlife.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display: ['"DM Serif Display"','serif'], body: ['"DM Sans"','sans-serif'] },
+      colors: {
+        forest: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',
+                  500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16' }
+      }
+    }
+  }
+}
+</script>
+<style>
+* { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+.font-display { font-family: 'DM Serif Display', serif; }
+body { background: #f8faf7; min-height: 100vh; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0; opacity:0.4;
+}
+.hero-gradient {
+  background: linear-gradient(135deg, #052e16 0%, #166534 40%, #15803d 70%, #1a6b4a 100%);
+  position: relative; overflow: hidden;
+}
+.hero-gradient::after {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(74,222,128,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(34,197,94,0.1) 0%, transparent 50%);
+  pointer-events:none;
+}
+.card { background:white; border-radius:1.5rem; border:1px solid rgba(22,101,52,0.08); box-shadow:0 4px 24px rgba(5,46,22,0.06),0 1px 4px rgba(5,46,22,0.04); }
+.badge { display:inline-flex; align-items:center; gap:0.375rem; padding:0.375rem 0.875rem; border-radius:9999px; font-size:0.8125rem; font-weight:600; }
+.badge-green { background:#dcfce7; color:#15803d; }
+.badge-orange { background:#fff7ed; color:#c2410c; }
+.badge-blue { background:#eff6ff; color:#1d4ed8; }
+.stat-card { background:linear-gradient(135deg,#f0fdf4 0%,#f8fffe 100%); border:1px solid #bbf7d0; border-radius:1rem; padding:1.25rem; text-align:center; }
+.stat-number { font-family:'DM Serif Display',serif; font-size:1.875rem; color:#166534; line-height:1; }
+.stat-label { font-size:0.8125rem; color:#4b7a51; font-weight:500; margin-top:0.375rem; }
+.alert-success { background:linear-gradient(135deg,#f0fdf4,#f8fffe); border:2px solid #86efac; border-radius:1rem; padding:1.25rem 1.5rem; }
+.alert-danger { background:linear-gradient(135deg,#fef2f2,#fff5f5); border:2px solid #fca5a5; border-radius:1rem; padding:1.25rem 1.5rem; }
+.alert-info { background:linear-gradient(135deg,#eff6ff,#f8fbff); border:2px solid #93c5fd; border-radius:1rem; padding:1.25rem 1.5rem; }
+.btn-primary-mock { background:linear-gradient(135deg,#166534 0%,#15803d 100%); color:white; font-weight:700; padding:0.7rem 1.4rem; border-radius:0.875rem; display:inline-flex; align-items:center; gap:0.5rem; box-shadow:0 4px 16px rgba(22,101,52,0.25); font-size:0.875rem; }
+.btn-secondary-mock { background:white; color:#166534; font-weight:600; padding:0.6rem 1.2rem; border-radius:0.875rem; border:2px solid #166534; display:inline-flex; align-items:center; gap:0.5rem; font-size:0.8125rem; }
+.tab-btn-mock { padding:0.5rem 0.9rem; border-radius:0.75rem; font-weight:600; font-size:0.75rem; }
+.tab-btn-mock.active { background:#166534; color:white; }
+.tab-btn-mock:not(.active) { color:#4b7a51; background:#f0fdf4; }
+.act-card-mock { display:flex; flex-direction:column; align-items:center; gap:0.2rem; padding:0.6rem 0.4rem; border:2px solid #dcfce7; border-radius:0.75rem; background:#dcfce7; position:relative; font-size:0.65rem; font-weight:600; color:#2d4a30; width:72px; }
+.act-type-badge-mock { position:absolute; top:2px; right:4px; font-size:0.6rem; }
+.toc-link { display:block; padding:0.45rem 0.75rem; border-radius:0.6rem; font-size:0.84rem; color:#4b5d50; text-decoration:none; border-left:3px solid transparent; transition: all .15s; }
+.toc-link:hover { background:#f0fdf4; color:#166534; }
+.toc-link.toc-sub { padding-left:1.5rem; font-size:0.78rem; color:#6b7d70; }
+.section-num { display:inline-flex; align-items:center; justify-content:center; width:2.25rem; height:2.25rem; border-radius:0.7rem; background:linear-gradient(135deg,#166534,#15803d); color:white; font-family:'DM Serif Display',serif; font-size:1.05rem; flex-shrink:0; box-shadow:0 2px 8px rgba(22,101,52,0.3); }
+.kbd { background:#f1f5f4; border:1px solid #d6e3da; border-radius:0.35rem; padding:0.1rem 0.45rem; font-size:0.78em; font-weight:600; color:#2d4a30; }
+.semaforo-mock { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:600; padding:0.4rem 0.7rem; border-radius:0.5rem; }
+table.doc-table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+table.doc-table th { background:#166534; color:white; padding:0.6rem 0.85rem; text-align:left; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.03em; }
+table.doc-table td { padding:0.6rem 0.85rem; border-bottom:1px solid #f0f9f2; vertical-align:top; }
+table.doc-table tr:nth-child(even) td { background:#f8faf7; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#f8faf7; }
+::-webkit-scrollbar-thumb { background:#86efac; border-radius:9999px; }
+.scroll-mt { scroll-margin-top: 90px; }
+@media print {
+  #toc-sidebar, #back-to-app, #mobile-toc { display:none !important; }
+  .card { box-shadow:none; border:1px solid #ddd; }
+}
+</style>
+</head>
+<body class="relative">
+
+<!-- BOTÓN VOLVER A LA APP -->
+<a id="back-to-app" href="index.html" class="fixed top-4 right-4 z-50 btn-secondary-mock shadow-lg" style="background:white;">
+  ← Volver a la app
+</a>
+
+<!-- HERO -->
+<div class="hero-gradient relative z-10">
+  <div class="relative z-10 max-w-6xl mx-auto px-4 py-14 text-center text-white">
+    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-medium mb-5">
+      <span>📖</span><span>Manual de usuario</span>
+    </div>
+    <h1 class="font-display text-5xl md:text-6xl mb-3 leading-tight">Walk<span class="text-green-300">ForLife</span></h1>
+    <p class="text-green-100 text-lg max-w-2xl mx-auto leading-relaxed">
+      Guía completa de cada función, paso a paso. Pensada para que encuentres lo que necesitas en segundos.
+    </p>
+  </div>
+</div>
+
+<!-- LAYOUT PRINCIPAL: sidebar + contenido -->
+<div class="relative z-10 max-w-6xl mx-auto px-4 py-8 lg:flex lg:gap-8">
+
+  <!-- TOC MÓVIL (acordeón nativo, sin JS) -->
+  <details id="mobile-toc" class="lg:hidden card p-4 mb-6">
+    <summary class="font-display text-lg text-forest-900 cursor-pointer">📑 Índice de contenidos</summary>
+    <nav class="mt-3 space-y-0.5">
+      <a class="toc-link" href="#mapa-rapido">🗺️ Mapa rápido</a>
+      <a class="toc-link" href="#primeros-pasos">🚀 Primeros pasos</a>
+      <a class="toc-link" href="#datos-personales">1. Datos personales y objetivos</a>
+      <a class="toc-link toc-sub" href="#imc">IMC en tiempo real</a>
+      <a class="toc-link toc-sub" href="#peso-objetivo">Objetivo de peso inteligente</a>
+      <a class="toc-link toc-sub" href="#ganancia">Modo ganancia muscular</a>
+      <a class="toc-link toc-sub" href="#grasa">% de grasa corporal</a>
+      <a class="toc-link toc-sub" href="#comorbilidades">Condiciones de salud</a>
+      <a class="toc-link" href="#actividades">2. Actividades físicas</a>
+      <a class="toc-link toc-sub" href="#actividades-personalizadas">Actividades personalizadas</a>
+      <a class="toc-link" href="#calculadora">3. Calculadora de calorías</a>
+      <a class="toc-link" href="#generar-plan">4. Generar el plan</a>
+      <a class="toc-link" href="#resultado-evaluacion">5. Resultados: Evaluación</a>
+      <a class="toc-link" href="#resultado-ejercicio">6. Resultados: Ejercicio</a>
+      <a class="toc-link" href="#resultado-dietas">7. Resultados: Dietas</a>
+      <a class="toc-link" href="#resultado-seguimiento">8. Resultados: Seguimiento</a>
+      <a class="toc-link" href="#exportar">9. Exportar e importar</a>
+      <a class="toc-link" href="#privacidad">10. Datos guardados y privacidad</a>
+      <a class="toc-link" href="#pwa">11. Instalar como aplicación</a>
+      <a class="toc-link" href="#faq">12. Preguntas frecuentes</a>
+      <a class="toc-link" href="#aviso">⚕️ Aviso médico</a>
+    </nav>
+  </details>
+
+  <!-- TOC ESCRITORIO (sticky) -->
+  <aside id="toc-sidebar" class="hidden lg:block lg:w-64 flex-shrink-0">
+    <div class="card p-4 sticky top-6">
+      <p class="font-display text-lg text-forest-900 mb-2 px-2">📑 Índice</p>
+      <nav class="space-y-0.5 text-sm" style="max-height:80vh; overflow-y:auto;">
+        <a class="toc-link" href="#mapa-rapido">🗺️ Mapa rápido</a>
+        <a class="toc-link" href="#primeros-pasos">🚀 Primeros pasos</a>
+        <a class="toc-link" href="#datos-personales">1. Datos personales y objetivos</a>
+        <a class="toc-link toc-sub" href="#imc">IMC en tiempo real</a>
+        <a class="toc-link toc-sub" href="#peso-objetivo">Objetivo de peso inteligente</a>
+        <a class="toc-link toc-sub" href="#ganancia">Modo ganancia muscular</a>
+        <a class="toc-link toc-sub" href="#grasa">% de grasa corporal</a>
+        <a class="toc-link toc-sub" href="#comorbilidades">Condiciones de salud</a>
+        <a class="toc-link" href="#actividades">2. Actividades físicas</a>
+        <a class="toc-link toc-sub" href="#actividades-personalizadas">Actividades personalizadas</a>
+        <a class="toc-link" href="#calculadora">3. Calculadora de calorías</a>
+        <a class="toc-link" href="#generar-plan">4. Generar el plan</a>
+        <a class="toc-link" href="#resultado-evaluacion">5. Resultados: Evaluación</a>
+        <a class="toc-link" href="#resultado-ejercicio">6. Resultados: Ejercicio</a>
+        <a class="toc-link" href="#resultado-dietas">7. Resultados: Dietas</a>
+        <a class="toc-link" href="#resultado-seguimiento">8. Resultados: Seguimiento</a>
+        <a class="toc-link" href="#exportar">9. Exportar e importar</a>
+        <a class="toc-link" href="#privacidad">10. Datos guardados y privacidad</a>
+        <a class="toc-link" href="#pwa">11. Instalar como aplicación</a>
+        <a class="toc-link" href="#faq">12. Preguntas frecuentes</a>
+        <a class="toc-link" href="#aviso">⚕️ Aviso médico</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="flex-1 min-w-0 space-y-8">
+
+    <!-- MAPA RÁPIDO -->
+    <section id="mapa-rapido" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">🗺️</span>
+        <h2 class="font-display text-2xl text-forest-900">Mapa rápido</h2>
+      </div>
+      <p class="text-gray-600 mb-5">Busca lo que necesitas y ve directo a esa sección.</p>
+      <div class="table-wrap" style="overflow-x:auto; border-radius:0.875rem;">
+        <table class="doc-table">
+          <thead><tr><th>Quiero...</th><th>Dónde está</th></tr></thead>
+          <tbody>
+            <tr><td>Calcular mi IMC</td><td><a href="#imc" class="text-blue-600 underline">Datos personales</a> — se calcula solo al rellenar talla y peso</td></tr>
+            <tr><td>Saber en cuánto tiempo puedo alcanzar mi objetivo de forma segura</td><td><a href="#peso-objetivo" class="text-blue-600 underline">Objetivo de peso inteligente</a> — semáforo y rango automático</td></tr>
+            <tr><td>Ganar músculo en vez de perder peso</td><td><a href="#ganancia" class="text-blue-600 underline">Modo ganancia muscular</a> (solo visible con IMC normal)</td></tr>
+            <tr><td>Conocer mi % de grasa corporal</td><td><a href="#grasa" class="text-blue-600 underline">% Grasa corporal (opcional)</a> — directo o fórmula Navy</td></tr>
+            <tr><td>Indicar que tengo diabetes, hipertensión, etc.</td><td><a href="#comorbilidades" class="text-blue-600 underline">Condiciones de salud</a> — recomendaciones automáticas</td></tr>
+            <tr><td>Combinar caminar con otro deporte</td><td><a href="#actividades" class="text-blue-600 underline">Actividades físicas</a> — reparto con sliders</td></tr>
+            <tr><td>Añadir un deporte que no está en la lista</td><td><a href="#actividades-personalizadas" class="text-blue-600 underline">➕ Añadir actividad</a> — modal con Nombre/Descripción/MET</td></tr>
+            <tr><td>Saber cuánto quemé en una actividad puntual</td><td><a href="#calculadora" class="text-blue-600 underline">Calculadora de Calorías Quemadas</a></td></tr>
+            <tr><td>Descargar mi plan completo</td><td><a href="#exportar" class="text-blue-600 underline">Descargar plan en PDF</a></td></tr>
+            <tr><td>Continuar mi plan en otro momento</td><td>Se guarda solo — ver <a href="#privacidad" class="text-blue-600 underline">Datos guardados</a></td></tr>
+            <tr><td>Instalar la app en el móvil</td><td><a href="#pwa" class="text-blue-600 underline">Instalar como aplicación</a></td></tr>
+            <tr><td>Borrar todo porque va a usarla otra persona</td><td><a href="#privacidad" class="text-blue-600 underline">🗑️ Reiniciar todo</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PRIMEROS PASOS -->
+    <section id="primeros-pasos" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">🚀</span>
+        <h2 class="font-display text-2xl text-forest-900">Primeros pasos</h2>
+      </div>
+      <p class="text-gray-600 mb-4">WalkForLife funciona en 4 grandes bloques, en este orden:</p>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+        <div class="stat-card"><div class="text-2xl mb-1">📋</div><div class="font-semibold text-forest-800 text-sm">1. Rellena tus datos</div><p class="text-xs text-gray-500 mt-1">Talla, peso, edad, objetivo y actividades</p></div>
+        <div class="stat-card"><div class="text-2xl mb-1">⚡</div><div class="font-semibold text-forest-800 text-sm">2. Genera el plan</div><p class="text-xs text-gray-500 mt-1">Un botón calcula todo automáticamente</p></div>
+        <div class="stat-card"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-forest-800 text-sm">3. Explora resultados</div><p class="text-xs text-gray-500 mt-1">4 pestañas: Evaluación, Ejercicio, Dietas, Seguimiento</p></div>
+        <div class="stat-card"><div class="text-2xl mb-1">💾</div><div class="font-semibold text-forest-800 text-sm">4. Guarda y continúa</div><p class="text-xs text-gray-500 mt-1">Tus datos persisten solos entre visitas</p></div>
+      </div>
+      <div class="alert-info">
+        <p class="text-sm text-blue-800"><strong>💡 No necesitas rellenar todo de una vez.</strong> Solo son obligatorios talla, peso actual, edad, sexo, peso objetivo y tiempo deseado para generar el plan. El resto (actividades adicionales, % de grasa, condiciones de salud) es opcional y enriquece el resultado si lo añades.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 1: DATOS PERSONALES -->
+    <section id="datos-personales" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">1</span>
+        <h2 class="font-display text-2xl text-forest-900">Datos personales y objetivos</h2>
+      </div>
+      <p class="text-gray-600 mb-5">El primer bloque de la app. Aquí introduces tu antropometría y tu meta. Todo lo que escribas aquí se guarda automáticamente en tu navegador (ver <a href="#privacidad" class="text-blue-600 underline">Datos guardados</a>).</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">Campos básicos</h3>
+      <div class="table-wrap mb-6" style="overflow-x:auto; border-radius:0.875rem;">
+        <table class="doc-table">
+          <thead><tr><th>Campo</th><th>Qué es</th><th>Rango aceptado</th></tr></thead>
+          <tbody>
+            <tr><td>👤 Nombre</td><td>Se usa para personalizar el informe PDF</td><td>Texto libre, opcional</td></tr>
+            <tr><td>📏 Talla (cm)</td><td>Tu altura</td><td>100–250 cm</td></tr>
+            <tr><td>⚖️ Peso actual (kg)</td><td>Tu peso de partida</td><td>30–300 kg</td></tr>
+            <tr><td>🎂 Edad (años)</td><td>Se usa en el cálculo del metabolismo basal</td><td>16–100 años</td></tr>
+            <tr><td>⚧ Sexo</td><td>Hombre / Mujer — afecta a la fórmula de TMB y a la clasificación de % de grasa</td><td>Obligatorio</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert-danger mb-6">
+        <p class="text-sm text-red-700"><strong>⚠️ Validación de rangos:</strong> si introduces un valor fuera de los límites razonables (por ejemplo, una talla de 320 cm), el campo se marca en rojo con un mensaje explicativo y no podrás generar el plan hasta corregirlo.</p>
+      </div>
+
+      <!-- IMC -->
+      <h3 id="imc" class="font-semibold text-forest-800 mb-2 scroll-mt">📊 IMC en tiempo real</h3>
+      <p class="text-gray-600 mb-3">En cuanto rellenas <strong>talla</strong> y <strong>peso actual</strong>, aparece automáticamente un recuadro con tu Índice de Masa Corporal y una etiqueta de color:</p>
+      <div class="flex flex-wrap gap-3 mb-4">
+        <span class="badge badge-blue">Bajo peso</span><span class="text-xs text-gray-400">IMC &lt; 18.5</span>
+        <span class="badge badge-green">Peso normal</span><span class="text-xs text-gray-400">IMC 18.5–24.9</span>
+        <span class="badge badge-orange">Sobrepeso / Obesidad</span><span class="text-xs text-gray-400">IMC ≥ 25</span>
+      </div>
+      <p class="text-gray-600 mb-3">Según tu resultado, la app reacciona de forma distinta:</p>
+      <ul class="space-y-2 text-gray-600 text-sm pl-1 mb-4">
+        <li>🔵 <strong>IMC &lt; 18.5:</strong> aviso de bajo peso, recomendando consultar al médico antes de fijar un objetivo de pérdida.</li>
+        <li>🟢 <strong>IMC 18.5–24.9 (normal):</strong> se desbloquea la opción de <a href="#ganancia" class="text-blue-600 underline">Modo ganancia muscular</a>.</li>
+        <li>🟠 <strong>IMC ≥ 25:</strong> la app sugiere automáticamente un peso objetivo saludable (el peso correspondiente a un IMC de 24.9) directamente en el campo "Peso objetivo".</li>
+      </ul>
+
+      <!-- PESO OBJETIVO -->
+      <h3 id="peso-objetivo" class="font-semibold text-forest-800 mb-2 scroll-mt">🎯 Objetivo de peso inteligente</h3>
+      <p class="text-gray-600 mb-3">Al escribir un peso objetivo aparece un panel con tres elementos:</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🎛️ Slider de ajuste</p>
+          <p class="text-xs text-gray-500">Permite mover el objetivo dentro de un rango clínicamente razonable (entre el IMC 18.5 y tu peso actual, o hasta el IMC 24.9 si estás en modo ganancia).</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">⏱️ Rango de tiempo saludable</p>
+          <p class="text-xs text-gray-500">Calcula automáticamente cuántos meses necesitas a un ritmo de 0.5–1 kg/semana.</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🚦 Semáforo de ritmo</p>
+          <p class="text-xs text-gray-500">Compara tu objetivo y plazo elegidos contra el ritmo saludable.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-3 mb-4">
+        <span class="semaforo-mock" style="background:#dcfce7;color:#15803d;">🟢 Ritmo saludable (0.3–1 kg/semana)</span>
+        <span class="semaforo-mock" style="background:#fff7ed;color:#c2410c;">🟡 Ritmo muy lento</span>
+        <span class="semaforo-mock" style="background:#fef2f2;color:#dc2626;">🔴 Ritmo excesivo (&gt;1 kg/semana)</span>
+      </div>
+      <div class="alert-danger mb-6">
+        <p class="text-sm text-red-700"><strong>⚠️ Si pides un ritmo excesivo</strong> al generar el plan (más de 1 kg/semana de media), aparece una alerta roja grande explicando por qué no es seguro y proponiendo automáticamente un tiempo mínimo recomendado. El plan se sigue calculando, pero con un ritmo de 0.75 kg/semana en vez del que pediste.</p>
+      </div>
+
+      <!-- GANANCIA -->
+      <h3 id="ganancia" class="font-semibold text-forest-800 mb-2 scroll-mt">🏋️ Modo ganancia muscular</h3>
+      <p class="text-gray-600 mb-3">Si tu IMC está en el rango normal (18.5–24.9), aparece la opción <strong>"Activar plan de ganancia muscular"</strong>. Al marcarla:</p>
+      <ul class="space-y-1.5 text-gray-600 text-sm pl-5 mb-4" style="list-style:disc;">
+        <li>El peso objetivo pasa a ser <strong>mayor</strong> que tu peso actual (en vez de menor).</li>
+        <li>El límite superior se fija en el peso correspondiente a un IMC de 24.9 — no se permite superar el rango de normopeso.</li>
+        <li>El tipo de plan cambia a <strong>"Ganancia muscular saludable"</strong> en toda la app y en el PDF.</li>
+        <li>El ritmo recomendado pasa a ser más conservador: ≤ 0.5 kg/semana.</li>
+      </ul>
+
+      <!-- GRASA -->
+      <h3 id="grasa" class="font-semibold text-forest-800 mb-2 scroll-mt">🔬 % de grasa corporal (opcional)</h3>
+      <p class="text-gray-600 mb-3">Panel desplegable (pulsa el botón <strong>+</strong>) con dos formas de calcularlo:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-white border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">① Introducir directamente</p>
+          <p class="text-xs text-gray-500">Si ya conoces tu % por una báscula de bioimpedancia, lo escribes y listo.</p>
+        </div>
+        <div class="bg-white border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">② Fórmula Navy</p>
+          <p class="text-xs text-gray-500">Mide tu perímetro de cuello y cintura (y cadera, solo en mujeres) con una cinta métrica; la app calcula el % por ti.</p>
+        </div>
+      </div>
+      <p class="text-gray-600 mb-3">El resultado muestra: % de grasa, kg de masa grasa, kg de masa magra, una clasificación (esencial / atlético / en forma / aceptable / obesidad, con baremos distintos para hombre y mujer) y un consejo breve.</p>
+      <div class="alert-info">
+        <p class="text-sm text-blue-800"><strong>💡 Por qué importa:</strong> el IMC no distingue grasa de músculo. Dos personas con el mismo IMC pueden tener composiciones corporales muy distintas — conocer el % de grasa da una imagen más completa.</p>
+      </div>
+
+      <!-- COMORBILIDADES -->
+      <h3 id="comorbilidades" class="font-semibold text-forest-800 mt-6 mb-2 scroll-mt">🏥 Condiciones de salud (opcional)</h3>
+      <p class="text-gray-600 mb-3">Cuatro casillas que puedes marcar de forma independiente:</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800">🩸 Diabetes</span>
+        <span class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800">💊 Dislipemia</span>
+        <span class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800">❤️ Hipertensión</span>
+        <span class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800">🔬 Hiperuricemia</span>
+      </div>
+      <p class="text-gray-600 mb-3">Al marcar cualquiera, aparece un panel con recomendaciones dietéticas específicas (qué priorizar, qué limitar) para esa condición — puedes marcar varias a la vez y verás las recomendaciones de todas juntas.</p>
+      <div class="alert-danger">
+        <p class="text-sm text-red-700"><strong>⚠️ Siempre visible:</strong> estas recomendaciones llevan un aviso fijo: <em>"Estas recomendaciones son orientativas. Deben ser confirmadas con su Médico de Familia."</em> No sustituyen una consulta médica.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: ACTIVIDADES FÍSICAS -->
+    <section id="actividades" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">2</span>
+        <h2 class="font-display text-2xl text-forest-900">Actividades físicas disponibles</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Caminar es la actividad base de todo plan y <strong>no se puede desmarcar</strong>. Puedes combinarla con otras 8 actividades predefinidas:</p>
+
+      <div class="flex flex-wrap gap-2 mb-2">
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">🚶</span>Caminar</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">🚴</span>Bicicleta</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">🏊</span>Natación</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">⚙️</span>Elíptica</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">🥾</span>Senderismo</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">❤️</span><span style="font-size:1.3rem;">💃</span>Baile/Zumba</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">💪</span><span style="font-size:1.3rem;">🧘</span>Pilates/Yoga</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">💪</span><span style="font-size:1.3rem;">🏋️</span>Pesas (gym)</div>
+        <div class="act-card-mock"><span class="act-type-badge-mock">💪</span><span style="font-size:1.3rem;">➰</span>Bandas</div>
+      </div>
+      <p class="text-xs text-gray-400 mb-5">❤️ Cardiovascular &nbsp;·&nbsp; 💪 Fuerza/Resistencia (se combina con la rutina de fuerza corporal del plan)</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">⚖️ Reparto semanal entre actividades</h3>
+      <p class="text-gray-600 mb-3">En cuanto seleccionas <strong>más de una actividad</strong>, aparece un panel de reparto con un slider por cada actividad elegida. Mueve cualquiera y los demás se reajustan automáticamente para que la suma siga siendo exactamente <strong>100%</strong> — un indicador de color te avisa si por algún motivo la suma no es correcta.</p>
+      <div class="alert-info mb-6">
+        <p class="text-sm text-blue-800"><strong>💡 Ejemplo:</strong> si eliges Caminar y Bicicleta con un reparto 70/30, el plan de ejercicio te asignará aproximadamente 4 días de caminata y 2 de bicicleta a la semana, ajustando la progresión de cada una según ese porcentaje.</p>
+      </div>
+
+      <!-- ACTIVIDADES PERSONALIZADAS -->
+      <h3 id="actividades-personalizadas" class="font-semibold text-forest-800 mb-2 scroll-mt">⚙️ Actividades personalizadas</h3>
+      <p class="text-gray-600 mb-3">¿Practicas un deporte que no está en la lista? Pulsa la tarjeta <strong>"➕ Añadir actividad"</strong> (siempre al final del selector). Se abre un formulario con:</p>
+      <ul class="space-y-1.5 text-gray-600 text-sm pl-5 mb-4" style="list-style:disc;">
+        <li><strong>Nombre</strong> — ej. "Remo", "Pádel", "CrossFit"...</li>
+        <li><strong>Descripción</strong> — breve, opcional.</li>
+        <li><strong>MET (Metabolic Equivalent of Task)</strong> — indica la intensidad energética. El formulario incluye un enlace directo a <a href="https://en.wikipedia.org/wiki/Metabolic_equivalent_of_task" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Wikipedia</a> si no sabes qué valor poner.</li>
+      </ul>
+      <p class="text-gray-600 mb-3">Con el MET, la app genera automáticamente una progresión de 6 semanas estimada (minutos por sesión y kcal aproximadas), igual que con las actividades predefinidas. Las actividades personalizadas aparecen con el icono ⚙️ y se pueden seleccionar/deseleccionar igual que las demás.</p>
+
+      <h4 class="font-semibold text-forest-800 text-sm mb-2">Editar o eliminar una actividad personalizada</h4>
+      <p class="text-gray-600 mb-3">Tienes dos formas de editar:</p>
+      <ul class="space-y-1.5 text-gray-600 text-sm pl-5 mb-4" style="list-style:disc;">
+        <li>El lápiz <span class="kbd">✎</span> directamente sobre la tarjeta de la actividad en el grid.</li>
+        <li>El lápiz <span class="kbd">✎</span> en la lista del propio modal (al volver a pulsar "➕ Añadir actividad").</li>
+      </ul>
+      <p class="text-gray-600 mb-3">Para eliminarla, usa el botón <span class="kbd">✕</span> en esa misma lista — se pedirá confirmación antes de borrarla.</p>
+
+      <h4 class="font-semibold text-forest-800 text-sm mb-2">Guardar y cargar tu catálogo de actividades</h4>
+      <p class="text-gray-600 mb-3">Justo debajo del selector de actividades (fuera del modal, siempre visibles) hay dos botones:</p>
+      <div class="flex flex-wrap gap-2">
+        <span class="btn-secondary-mock">💾 Guardar mis actividades (JSON)</span>
+        <span class="btn-secondary-mock">📂 Cargar actividades (JSON)</span>
+      </div>
+      <p class="text-gray-600 mt-3">Esto te permite hacer una copia de seguridad de tus actividades personalizadas, o trasladarlas a otro dispositivo/navegador.</p>
+    </section>
+
+    <!-- SECCIÓN 3: CALCULADORA DE CALORÍAS -->
+    <section id="calculadora" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">3</span>
+        <h2 class="font-display text-2xl text-forest-900">🔥 Calculadora de Calorías Quemadas</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Una herramienta independiente del plan — no necesitas haberlo generado para usarla. Útil para calcular de forma puntual cuánto gastas en una sesión concreta de ejercicio.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">Más de 60 actividades en 9 categorías</h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="badge badge-green">Cardio</span>
+        <span class="badge badge-green">Entrenamiento de Fuerza</span>
+        <span class="badge badge-green">Deportes</span>
+        <span class="badge badge-green">Deportes Acuáticos</span>
+        <span class="badge badge-green">Deportes de Invierno</span>
+        <span class="badge badge-green">Deportes de Combate</span>
+        <span class="badge badge-green">Aire Libre</span>
+        <span class="badge badge-green">Flexibilidad y Equilibrio</span>
+        <span class="badge badge-green">Equipo de Gimnasio</span>
+      </div>
+
+      <h3 class="font-semibold text-forest-800 mb-2">Cómo usarla</h3>
+      <ol class="space-y-2 text-gray-600 text-sm pl-5 mb-4" style="list-style:decimal;">
+        <li>Elige la actividad en el desplegable (organizado por categorías).</li>
+        <li>Introduce tu peso y la duración en minutos.</li>
+        <li>Si elegiste Caminar, Correr o Ciclismo, aparece un campo adicional de <strong>velocidad (km/h)</strong> — la intensidad MET varía según el ritmo, igual que en la vida real.</li>
+      </ol>
+      <p class="text-gray-600 mb-3">Verás al instante:</p>
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="stat-card"><div class="stat-number" style="font-size:1.3rem;">420 kcal</div><div class="stat-label">Calorías totales</div></div>
+        <div class="stat-card"><div class="stat-number" style="font-size:1.3rem;">280 kcal</div><div class="stat-label">Calorías/hora</div></div>
+        <div class="stat-card"><div class="stat-number" style="font-size:1.3rem;">4.3</div><div class="stat-label">Valor MET</div></div>
+      </div>
+
+      <h3 class="font-semibold text-forest-800 mb-2">🍽️ ¿Qué quema esto?</h3>
+      <p class="text-gray-600 mb-4">Compara tu gasto calórico con alimentos cotidianos (porción de pizza, cerveza, chocolatina, plátano) para que el número tenga un contexto más intuitivo.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">📊 Impacto a largo plazo</h3>
+      <p class="text-gray-600 mb-3">Eligiendo cuántas veces por semana repetirías esa actividad (1x, 3x, 5x o 7x), la calculadora proyecta el impacto <strong>mensual y anual</strong> en kcal y su equivalencia aproximada en kg de grasa (usando la conversión estándar de ~7.700 kcal por kg de grasa).</p>
+      <div class="alert-info">
+        <p class="text-sm text-blue-800"><strong>💡 La fórmula detrás de todo:</strong> Calorías = MET × Peso (kg) × Duración (horas). Es la misma fórmula científica que usa el resto de la app para calcular el gasto en el plan de ejercicio — los valores MET de las actividades que coinciden (caminar, bicicleta, natación, elíptica, senderismo, pilates) son siempre los mismos en toda la aplicación, para que nunca veas cifras contradictorias.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: GENERAR EL PLAN -->
+    <section id="generar-plan" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">4</span>
+        <h2 class="font-display text-2xl text-forest-900">Generar el plan</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Cuando has rellenado los campos obligatorios, pulsa:</p>
+      <div class="mb-5"><span class="btn-primary-mock">⚡ Generar mi plan personalizado</span></div>
+      <p class="text-gray-600 mb-3">Internamente, la app hace estos cálculos en este orden:</p>
+      <ol class="space-y-2 text-gray-600 text-sm pl-5 mb-5" style="list-style:decimal;">
+        <li><strong>Valida</strong> todos los campos y rangos. Si algo falla, te lo señala en rojo y no continúa.</li>
+        <li>Calcula tu <strong>pérdida (o ganancia) semanal media</strong> según el peso objetivo y el tiempo elegido.</li>
+        <li>Si ese ritmo supera 1 kg/semana, muestra la alerta de seguridad y recalcula con un ritmo de 0.75 kg/semana.</li>
+        <li>Calcula tu <strong>Tasa Metabólica Basal (TMB)</strong> con la fórmula de Mifflin-St Jeor.</li>
+        <li>Calcula tu <strong>Gasto Energético Total (TDEE)</strong> aplicando un factor de actividad ligera (×1.375) a la TMB.</li>
+        <li>Determina el <strong>déficit calórico</strong> diario (500, 625 o 750 kcal, según el ritmo) y tu objetivo calórico diario final (nunca por debajo de 1.200 kcal).</li>
+      </ol>
+      <p class="text-gray-600">Tras esto, se muestran 4 pestañas de resultados: <strong>Evaluación, Ejercicio, Dietas y Seguimiento.</strong></p>
+    </section>
+
+    <!-- SECCIÓN 5: RESULTADOS - EVALUACIÓN -->
+    <section id="resultado-evaluacion" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">5</span>
+        <h2 class="font-display text-2xl text-forest-900">Resultados: 📊 Evaluación</h2>
+      </div>
+      <div class="flex gap-1 mb-5">
+        <span class="tab-btn-mock active">📊 Evaluación</span>
+        <span class="tab-btn-mock">🏃 Ejercicio</span>
+        <span class="tab-btn-mock">🥗 Dietas</span>
+        <span class="tab-btn-mock">📈 Seguimiento</span>
+      </div>
+      <p class="text-gray-600 mb-4">La primera pestaña es un resumen clínico de tu situación: IMC actual y objetivo (con su clasificación), kg a perder/ganar en total, ritmo semanal estimado, y — si los calculaste — tu % de grasa, masa grasa y masa magra.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="stat-card"><div class="stat-number">27.4</div><div class="stat-label">IMC actual</div></div>
+        <div class="stat-card"><div class="stat-number">24.8</div><div class="stat-label">IMC objetivo</div></div>
+        <div class="stat-card"><div class="stat-number">8.0</div><div class="stat-label">Kg a perder</div></div>
+        <div class="stat-card"><div class="stat-number">0.65</div><div class="stat-label">Kg/semana est.</div></div>
+      </div>
+      <p class="text-gray-600 mb-2">También verás el desglose calórico completo (TMB, TDEE, déficit y objetivo diario) y dos barras de progreso visuales comparando tu IMC actual frente al objetivo.</p>
+      <div class="alert-success">
+        <p class="text-sm text-green-700">✅ Si activaste el Modo ganancia muscular, esta pestaña lo indica claramente con una insignia azul "🏋️ Tipo de plan: Ganancia muscular saludable" en vez del badge verde habitual de pérdida de peso.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 6: RESULTADOS - EJERCICIO -->
+    <section id="resultado-ejercicio" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">6</span>
+        <h2 class="font-display text-2xl text-forest-900">Resultados: 🏃 Ejercicio</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Por cada actividad que elegiste (incluida la personalizada), verás una tabla de progresión de <strong>6 semanas</strong>, con minutos por sesión, intensidad/ritmo y días por semana ajustados según el porcentaje de reparto que asignaste. Las actividades de tipo fuerza muestran columnas de series y repeticiones en lugar de distancia.</p>
+      <h3 class="font-semibold text-forest-800 mb-2">💪 Fuerza corporal con peso propio</h3>
+      <p class="text-gray-600 mb-3">Siempre se incluye una rutina fija de 6 ejercicios sin material (sentadillas, flexiones, zancadas, plancha, hip thrust, superman), recomendada 2–3 veces por semana, complementando cualquier actividad cardiovascular elegida.</p>
+      <h3 class="font-semibold text-forest-800 mb-2">📆 Distribución semanal</h3>
+      <p class="text-gray-600 mb-3">Una cuadrícula de 7 días te muestra qué actividad toca cada día, repartiendo automáticamente las actividades elegidas según sus porcentajes, con un día de descanso activo.</p>
+      <h3 class="font-semibold text-forest-800 mb-2">🌧️ Alternativas para mal tiempo</h3>
+      <p class="text-gray-600">Tres opciones para no perder el hábito en días de lluvia: escaleras, marcha en casa o recados activos — más una guía de estiramientos diarios de 10 minutos.</p>
+    </section>
+
+    <!-- SECCIÓN 7: RESULTADOS - DIETAS -->
+    <section id="resultado-dietas" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">7</span>
+        <h2 class="font-display text-2xl text-forest-900">Resultados: 🥗 Dietas</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Tres planes de alimentación, todos calculados para el mismo objetivo calórico diario, pero con enfoques distintos:</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🫒 Opción 1: Mediterránea</p>
+          <p class="text-xs text-gray-500">Equilibrada, rica en vegetales, legumbres, aceite de oliva y pescado. Alta adherencia a largo plazo.</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🥩 Opción 2: Alta en Proteínas</p>
+          <p class="text-xs text-gray-500">Mayor saciedad, ideal si tienes hambre frecuente. Preserva más masa muscular.</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🔄 Opción 3: Flexible</p>
+          <p class="text-xs text-gray-500">Sin restricciones estrictas, basada en grupos de alimentos intercambiables.</p>
+        </div>
+      </div>
+      <p class="text-gray-600 mb-3">Cada opción incluye macronutrientes, un menú diario de ejemplo con cantidades en gramos (desayuno, snack AM, comida, snack PM y cena) y listas de alimentos recomendados/a limitar.</p>
+      <h3 class="font-semibold text-forest-800 mb-2">📅 Planificador semanal completo</h3>
+      <p class="text-gray-600 mb-4">Dentro de cada opción, el botón <strong>"Ver planificador semanal completo"</strong> despliega los 7 días de la semana con un menú distinto cada día (desayuno, snack AM, comida, snack PM y cena), todo con cantidades orientativas en gramos.</p>
+      <h3 class="font-semibold text-forest-800 mb-2">🍳 Recetas de los platos</h3>
+      <p class="text-gray-600">Cualquier plato con preparación algo más elaborada (paellas, tortillas, cremas, wraps, etc.) aparece subrayado en verde con el icono 🍳. Pulsa sobre él y se abrirá, en una pestaña nueva, la receta completa con ingredientes y pasos en el <strong>Recetario</strong> (<span class="kbd">WalkForLife-Recetas.html</span>) — un archivo aparte enlazable desde cualquier plato del menú.</p>
+    </section>
+
+    <!-- SECCIÓN 8: RESULTADOS - SEGUIMIENTO -->
+    <section id="resultado-seguimiento" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">8</span>
+        <h2 class="font-display text-2xl text-forest-900">Resultados: 📈 Seguimiento</h2>
+      </div>
+      <p class="text-gray-600 mb-4">La pestaña que cobra sentido con el tiempo: aquí registras tu progreso real y lo comparas con la proyección inicial.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">➕ Registrar peso actual</h3>
+      <p class="text-gray-600 mb-4">Introduce una fecha y un peso, y pulsa "Añadir". Si ya existe un registro para esa fecha, se te preguntará si quieres reemplazarlo. El historial completo se muestra en una tabla con la diferencia respecto al registro anterior y respecto al peso inicial.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">📈 Gráfica dual</h3>
+      <p class="text-gray-600 mb-4">Un único gráfico con dos líneas: la <strong>proyección original</strong> (verde, continua) y tu <strong>evolución real</strong> (naranja, discontinua) según vas añadiendo registros. Así ves de un vistazo si vas según lo previsto, mejor o peor.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">🔁 Recalcular el plan</h3>
+      <p class="text-gray-600 mb-3">Si tu peso real se desvía 1 kg o más de la proyección, aparece un aviso y se activa el botón:</p>
+      <div class="mb-4"><span class="btn-secondary-mock">↻ Recalcular plan desde hoy</span></div>
+      <p class="text-gray-600 mb-4">Esto recalcula TMB, TDEE, déficit y tiempo restante <strong>desde tu peso actual real</strong>, manteniendo siempre tu objetivo final original — nunca lo cambia sin que tú lo decidas.</p>
+      <div class="alert-info">
+        <p class="text-sm text-blue-800">💾 La app te recuerda en esta misma pestaña que guardes tus datos actualizados para poder continuar el seguimiento en futuras sesiones (aunque, como verás en la siguiente sección, esto ya ocurre automáticamente).</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 9: EXPORTAR E IMPORTAR -->
+    <section id="exportar" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">9</span>
+        <h2 class="font-display text-2xl text-forest-900">Exportar e importar</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Bajo las 4 pestañas de resultados hay 4 botones de acción:</p>
+      <div class="flex flex-wrap gap-2 mb-5">
+        <span class="btn-primary-mock">⬇️ Descargar plan en PDF</span>
+        <span class="btn-secondary-mock">💾 Guardar datos (JSON)</span>
+        <span class="btn-secondary-mock">📂 Cargar datos (JSON)</span>
+        <span class="btn-secondary-mock">↻ Generar nuevo plan</span>
+      </div>
+
+      <h3 class="font-semibold text-forest-800 mb-2">⬇️ Descargar plan en PDF</h3>
+      <p class="text-gray-600 mb-4">Genera un informe completo y profesional con: datos personales, condiciones de salud declaradas (con sus recomendaciones), evaluación nutricional, programa de ejercicio completo (todas las actividades elegidas), las 3 dietas con sus planificadores semanales, historial de seguimiento y la gráfica de proyección — todo con la firma "Dr. José Manuel Fernández Carreira. Col Nº 333307846" en la cabecera.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">💾 Guardar datos (JSON) / 📂 Cargar datos (JSON)</h3>
+      <p class="text-gray-600 mb-4">Exporta <strong>todo</strong> el estado de tu plan (datos personales, plan calculado, historial de seguimiento, actividades personalizadas) a un archivo. Es la forma de llevarte tu plan a otro dispositivo, compartirlo, o tener una copia de seguridad fuera del navegador. "Cargar datos" hace el proceso inverso, validando que el archivo tenga la estructura correcta antes de aplicarlo.</p>
+
+      <h3 class="font-semibold text-forest-800 mb-2">↻ Generar nuevo plan</h3>
+      <p class="text-gray-600">Limpia el formulario y los resultados para empezar de cero. Tus actividades personalizadas <strong>no se borran</strong> (son parte de tu catálogo personal), pero sí se deseleccionan.</p>
+    </section>
+
+    <!-- SECCIÓN 10: PRIVACIDAD -->
+    <section id="privacidad" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">10</span>
+        <h2 class="font-display text-2xl text-forest-900">Datos guardados y privacidad</h2>
+      </div>
+      <p class="text-gray-600 mb-4">WalkForLife guarda automáticamente tu información <strong>en tu propio navegador</strong> (localStorage), sin enviarla a ningún servidor. Esto significa:</p>
+      <ul class="space-y-1.5 text-gray-600 text-sm pl-5 mb-5" style="list-style:disc;">
+        <li>Si cierras la pestaña o el navegador y vuelves más tarde, tu plan, tu historial de seguimiento y tus actividades personalizadas siguen ahí.</li>
+        <li>Tus datos solo existen en <strong>ese</strong> navegador, en <strong>ese</strong> dispositivo. No hay copia en ningún servidor ni cuenta de usuario.</li>
+        <li>Si abres la app en otro ordenador o navegador, empiezas de cero (a menos que importes un JSON exportado previamente).</li>
+      </ul>
+
+      <div class="alert-danger mb-5">
+        <p class="text-sm text-red-700"><strong>🗑️ ¿Va a usar este dispositivo otra persona?</strong> Al final de la página hay un botón: <em>"¿Va a usar este dispositivo otra persona? Reiniciar todo (borra todos los datos guardados)"</em>. Pide confirmación explícita y borra por completo: datos personales, plan generado, historial de seguimiento, actividades personalizadas, condiciones de salud y % de grasa. Es la forma correcta de dejar el dispositivo limpio para el siguiente usuario.</p>
+      </div>
+      <div class="alert-info">
+        <p class="text-sm text-blue-800">💡 Si solo quieres calcular un plan nuevo para ti mismo sin perder tus actividades personalizadas guardadas, usa <strong>"Generar nuevo plan"</strong> en vez de "Reiniciar todo".</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 11: PWA -->
+    <section id="pwa" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">11</span>
+        <h2 class="font-display text-2xl text-forest-900">Instalar como aplicación</h2>
+      </div>
+      <p class="text-gray-600 mb-4">WalkForLife puede instalarse como una app independiente en tu móvil, tablet u ordenador (es una Progressive Web App / PWA), con icono propio y funcionamiento sin barra de navegador.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🤖 Android / Chrome / Edge</p>
+          <p class="text-xs text-gray-500">Aparece automáticamente un botón flotante "📲 Instalar WalkForLife" en la esquina inferior derecha. Pulsa y confirma.</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">🍎 iPhone / iPad (Safari)</p>
+          <p class="text-xs text-gray-500">iOS no admite instalación automática. Verás un aviso: pulsa <strong>Compartir</strong> (□↑) y luego <strong>"Añadir a pantalla de inicio"</strong>.</p>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-forest-800 text-sm mb-1">💻 Ordenador</p>
+          <p class="text-xs text-gray-500">En Chrome/Edge, busca el icono de instalación en la barra de direcciones, o usa el mismo botón flotante.</p>
+        </div>
+      </div>
+      <p class="text-gray-600">Una vez instalada, la app funciona con un icono propio en tu pantalla de inicio y conserva parte de la funcionalidad sin conexión gracias a su Service Worker.</p>
+      <div class="alert-info mt-4">
+        <p class="text-sm text-blue-800">⚠️ La instalación y el funcionamiento sin conexión requieren que la app esté alojada en un servidor web (https) o se abra desde <span class="kbd">localhost</span>. Si simplemente abres el archivo HTML haciendo doble clic desde tu ordenador (<span class="kbd">file://</span>), estas funciones de instalación no estarán disponibles por restricciones de seguridad de los navegadores — el resto de la app funciona con normalidad.</p>
+      </div>
+
+      <h3 class="font-semibold text-forest-800 mt-6 mb-2">📁 Archivos necesarios para desplegarla (GitHub Pages u otro hosting)</h3>
+      <p class="text-gray-600 mb-3">La instalación como PWA depende de varios archivos adicionales que deben subirse <strong>todos en la misma carpeta</strong> que <span class="kbd">WalkForLife.html</span> (la raíz del repositorio, si usas GitHub Pages):</p>
+      <div class="table-wrap mb-4" style="overflow-x:auto; border-radius:0.875rem;">
+        <table class="doc-table">
+          <thead><tr><th>Archivo</th><th>Para qué sirve</th></tr></thead>
+          <tbody>
+            <tr><td><span class="kbd">WalkForLife.html</span></td><td>La aplicación en sí</td></tr>
+            <tr><td><span class="kbd">manifest.json</span></td><td>Describe la app al sistema operativo (nombre, iconos, colores) — necesario para que aparezca la opción de instalar</td></tr>
+            <tr><td><span class="kbd">sw.js</span></td><td>Service Worker — habilita el funcionamiento offline</td></tr>
+            <tr><td><span class="kbd">icon-192.png</span></td><td>Icono cuadrado pequeño (192×192) para el manifest</td></tr>
+            <tr><td><span class="kbd">icon-512.png</span></td><td>Icono cuadrado grande (512×512) para el manifest</td></tr>
+            <tr><td><span class="kbd">LogoWalkforlife.png</span></td><td>Logo completo (no cuadrado) usado en la cabecera de la propia app</td></tr>
+            <tr><td><span class="kbd">WalkForLife-Manual.html</span></td><td>Este manual</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert-danger">
+        <p class="text-sm text-red-700"><strong>⚠️ Si falta cualquiera de estos archivos</strong> (sobre todo <span class="kbd">manifest.json</span>, <span class="kbd">sw.js</span> o los iconos), el navegador no mostrará ningún error visible — simplemente no aparecerá el botón ni la opción de instalar, como si la PWA no existiera. Comprueba en las herramientas de desarrollador del navegador (pestaña "Application" / "Aplicación" en Chrome) que el manifest y el Service Worker se cargan sin errores 404.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 12: FAQ -->
+    <section id="faq" class="card p-6 md:p-8 scroll-mt">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="section-num">12</span>
+        <h2 class="font-display text-2xl text-forest-900">Preguntas frecuentes</h2>
+      </div>
+
+      <div class="space-y-4">
+        <details class="border border-green-200 rounded-xl p-4 group">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Por qué no puedo desmarcar "Caminar"?</summary>
+          <p class="text-sm text-gray-600 mt-2">Caminar es la actividad base del programa por su accesibilidad y bajo riesgo de lesión. Puedes combinarla con cualquier otra actividad y ajustar el reparto, pero siempre formará parte del plan en algún porcentaje.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Qué pasa si pido un objetivo poco realista (por ejemplo, perder 50 kg en 1 mes)?</summary>
+          <p class="text-sm text-gray-600 mt-2">La app no te deja avanzar sin avisarte: mostrará una alerta roja explicando que ese ritmo no es seguro, te propondrá un tiempo mínimo recomendado, y calculará el plan con un ritmo seguro de 0.75 kg/semana en su lugar. Además, hay un límite duro: no se puede planificar una pérdida de más de 80 kg en un único plan de hasta 12 meses.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Se pierden mis datos si cierro el navegador?</summary>
+          <p class="text-sm text-gray-600 mt-2">No. Todo se guarda automáticamente en tu navegador (ver <a href="#privacidad" class="text-blue-600 underline">Datos guardados y privacidad</a>). Solo se borra si pulsas explícitamente "Reiniciar todo", o si borras manualmente los datos de navegación de tu navegador.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Puedo usar la app sin conexión a internet?</summary>
+          <p class="text-sm text-gray-600 mt-2">Una vez cargada por primera vez (y si la app está instalada como PWA en un servidor con https), buena parte de la funcionalidad sigue disponible sin conexión gracias al Service Worker. Ten en cuenta que las fuentes de Google Fonts y las librerías externas (Chart.js, jsPDF) requieren conexión la primera vez que se cargan.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿La calculadora de calorías usa los mismos valores MET que el plan de ejercicio?</summary>
+          <p class="text-sm text-gray-600 mt-2">Sí, para las actividades que coinciden (caminar, bicicleta, natación, elíptica, senderismo, pilates) se reutiliza exactamente el mismo valor MET en toda la aplicación, para que nunca veas cifras contradictorias entre secciones.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Por qué no veo la opción de "Modo ganancia muscular"?</summary>
+          <p class="text-sm text-gray-600 mt-2">Solo se muestra cuando tu IMC está en el rango de peso normal (18.5–24.9). Si tu IMC indica sobrepeso u obesidad, la app prioriza un objetivo de pérdida de peso por motivos de seguridad clínica.</p>
+        </details>
+        <details class="border border-green-200 rounded-xl p-4">
+          <summary class="font-semibold text-forest-800 cursor-pointer text-sm">¿Puedo tener varios planes guardados a la vez?</summary>
+          <p class="text-sm text-gray-600 mt-2">El navegador guarda automáticamente un único plan activo. Para conservar varios, exporta cada uno como archivo JSON con nombres distintos y cárgalos cuando los necesites.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- AVISO MÉDICO -->
+    <section id="aviso" class="card p-6 md:p-8 scroll-mt" style="background:linear-gradient(135deg,#fffbeb,#fffdf5); border:2px solid #fde68a;">
+      <div class="flex items-start gap-3">
+        <span class="text-3xl">⚕️</span>
+        <div>
+          <h2 class="font-display text-2xl text-amber-800 mb-2">Aviso médico importante</h2>
+          <p class="text-amber-700 text-sm leading-relaxed mb-3">WalkForLife ofrece <strong>estimaciones orientativas</strong> basadas en fórmulas de uso científico general (Mifflin-St Jeor, fórmula MET, fórmula Navy de composición corporal). No es un dispositivo médico ni sustituye el criterio profesional.</p>
+          <p class="text-amber-700 text-sm leading-relaxed mb-3"><strong>Consulta siempre a tu médico o dietista-nutricionista</strong> antes de comenzar cualquier plan de pérdida de peso, ganancia muscular o cambio relevante en tu actividad física — especialmente si tienes alguna condición de salud preexistente.</p>
+          <p class="text-amber-700 text-sm leading-relaxed">Las recomendaciones dietéticas asociadas a comorbilidades (diabetes, dislipemia, hipertensión, hiperuricemia) son orientativas y deben ser confirmadas siempre con tu Médico de Familia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-xs text-green-700 pb-10 pt-4">
+      <p>WalkForLife — Manual de usuario</p>
+      <p class="mt-1">Dr. José Manuel Fernández Carreira · Col Nº 333307846</p>
+      <p class="mt-3"><a href="index.html" class="text-blue-600 underline">← Volver a la aplicación</a></p>
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>
