@@ -1,38 +1,9 @@
-// WalkForLife - Service Worker
-// Estrategia: responde desde caché si existe, y en paralelo va a la red
-// para actualizar la caché de cara a la siguiente visita (cache-first
-// con actualización en segundo plano). Permite uso offline tras la
-// primera carga exitosa.
-
-const CACHE_NAME = 'walkforlife-cache-v1';
-
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    ).then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-
-  e.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cached = await cache.match(e.request);
-      const networkFetch = fetch(e.request)
-        .then((response) => {
-          if (response && response.ok) cache.put(e.request, response.clone());
-          return response;
-        })
-        .catch(() => cached);
-      return cached || networkFetch;
-    })
-  );
+// WalkForLife - Service Worker v3: network-first (siempre la versión nueva si hay red), caché como respaldo offline.
+const CACHE='walkforlife-cache-v3';
+const BASE=['./','WalkForLife.html','WalkForLife-Manual.html','WalkForLife-Recetas.html','manifest.json','icon-192.png','icon-512.png','LogoWalkforlife.png'];
+self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>Promise.all(BASE.map(u=>c.add(u).catch(()=>{})))));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
+  e.respondWith(fetch(e.request).then(r=>{if(r&&r.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));}return r;}).catch(()=>caches.match(e.request)));
 });
