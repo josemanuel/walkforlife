@@ -3734,6 +3734,9 @@ function buildDistribucionSemanal(acts) {
 // INICIALIZACIÓN: wire eventos del grid de actividades
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+  // Sello de versión visible: permite comprobar qué archivo está sirviendo realmente el navegador
+  const vp = document.createElement('p'); vp.id = 'versionApp'; vp.className = 'text-center text-xs text-gray-400 pb-6';
+  vp.textContent = 'WalkForLife v2.1 · 13-nov-2026 (ganancia con bajo peso, objetivo ideal, cribado)'; document.querySelector('main').appendChild(vp);
   // 0) Inicializar el selector de la calculadora de calorías (debe existir antes de restaurar)
   inicializarSelectorCalculadora();
 
